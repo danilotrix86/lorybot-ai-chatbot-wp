@@ -1,8 +1,8 @@
 <?php
 /**
- * Plugin Name: Lorybot: AI chatbot for Wordpress
+ * Plugin Name: Lorybot: AI chatbot
  * Plugin URI: #
- * Description: AI chatbot for Wordpress.
+ * Description: Lorybot is a AI chatbot that uses your information to provide the user with the best possible answer.
  * Version: 1.0
  * Author: Danilo Vaccalluzzo
  * Author URI: https://www.danilovaccalluzzo.it
@@ -14,7 +14,7 @@ if (!defined('ABSPATH')) {
 }
 
 global $lorybot_server_url;
-#$lorybot_server_url = 'http://127.0.0.1:5000/';
+#$lorybot_server_url = 'http://127.0.0.1:5000';
 $lorybot_server_url = 'https://chat2all.pythonanywhere.com/';
 
 
