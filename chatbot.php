@@ -16,7 +16,7 @@ if (!defined('ABSPATH')) {
 
 global $lorybot_server_url;
 #$lorybot_server_url = 'http://127.0.0.1:5000/';
-$lorybot_server_url = 'https://chat2all.pythonanywhere.com/';
+$lorybot_server_url = 'https://lorybot.pythonanywhere.com/';
 
 
 
