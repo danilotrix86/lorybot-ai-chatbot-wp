@@ -1,11 +1,12 @@
 <?php
 /**
  * Plugin Name: Lorybot: AI chatbot
- * Plugin URI: #
- * Description: Lorybot is a AI chatbot that uses your information to provide the user with the best possible answer.
+ * Plugin URI: https://www.lorybot.com
+ * Description: Lorybot is an innovative AI chatbot plugin for WordPress, expertly designed to generate informed and accurate responses from user-provided text. Tailoring its replies to individual inquiries, Lorybot offers a personalized and engaging user experience. This plugin is ideal for delivering immediate, relevant answers, enhancing user interaction and satisfaction on your website through the power of AI-driven conversation.
  * Version: 1.0
  * Author: Danilo Vaccalluzzo
  * Author URI: https://www.danilovaccalluzzo.it
+ 
  */
 
 // Exit if accessed directly
@@ -14,7 +15,7 @@ if (!defined('ABSPATH')) {
 }
 
 global $lorybot_server_url;
-#$lorybot_server_url = 'http://127.0.0.1:5000';
+#$lorybot_server_url = 'http://127.0.0.1:5000/';
 $lorybot_server_url = 'https://chat2all.pythonanywhere.com/';
 
 
@@ -53,7 +54,7 @@ function lorybot_activate() {
     add_option('lorybot_do_activation_redirect', true);
 
     // URL to send the POST request to
-    $url = $lorybot_server_url . "activate/";  // Use . for concatenation
+    $url = $lorybot_server_url . "activate/"; 
 
     // Data to send in the POST request
     $body = array(
