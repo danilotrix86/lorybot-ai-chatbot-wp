@@ -41,7 +41,7 @@ function lorybot_function_after_update($updated_values) {
         'prompt' => $updated_values['prompt'] ?? '',
     ];
 
-    global $lorybot_server_url;
+    $lorybot_server_url = get_option('lorybot_server_url');
     $response = wp_remote_post($lorybot_server_url . "/updatesettings", [
         'method'    => 'POST',
         'headers'   => ['Content-Type' => 'application/json'],

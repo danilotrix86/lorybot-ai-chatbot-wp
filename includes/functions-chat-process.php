@@ -6,8 +6,6 @@ function process_chatbot_message() {
     $user_message = sanitize_text_field($_POST['message'] ?? '');
     $client_id = getMainDomain();
 
-    global $lorybot_server_url;
-
     // Prepare the data payload for the POST request
     $data = http_build_query([
         'project_domain' => $client_id,
@@ -23,7 +21,7 @@ function process_chatbot_message() {
             'content' => $data,
         ],
     ]);
-
+    $lorybot_server_url = get_option('lorybot_server_url');
     // Perform the POST request and capture the response
     $response = file_get_contents($lorybot_server_url . "/chat", false, $context);
 

@@ -8,33 +8,52 @@
  * Author URI: https://www.danilovaccalluzzo.it
  */
 
-defined('ABSPATH') or exit;
+ defined('ABSPATH') or exit;
 
-#$lorybot_server_url =  'http://127.0.0.1:5000/';
-$lorybot_server_url = 'https://lorybot.pythonanywhere.com/';
 
+// Set the server URL as an option
+update_option('lorybot_server_url', 'https://lorybot.pythonanywhere.com/');
+
+  
 require_once plugin_dir_path(__FILE__) . 'includes/utils.php';
 require_once plugin_dir_path(__FILE__) . 'includes/functions-enqueue-scripts.php';
 require_once plugin_dir_path(__FILE__) . 'includes/functions-chat-display.php';
 require_once plugin_dir_path(__FILE__) . 'includes/functions-chat-process.php';
 require_once plugin_dir_path(__FILE__) . 'includes/functions-settings.php';
-
-
+ 
+ // Activation hook
+ register_activation_hook(__FILE__, 'lorybot_activate');
+ 
 // Function when the plugin is activated
 function lorybot_activate() {
-    global $lorybot_server_url;
-    add_option('lorybot_do_activation_redirect', true);
 
-    $response = wp_remote_post($lorybot_server_url . "activate/", array(
+    $lorybot_server_url = get_option('lorybot_server_url');
+
+    if (empty($lorybot_server_url)) {
+        error_log("lorybot_server_url is not set or empty.");
+        return;
+    }
+
+    // Ensure that the server URL ends with a slash
+    $formatted_server_url = rtrim($lorybot_server_url, '/') . '/';
+
+    // Construct the full URL for the POST request
+    $full_url = $formatted_server_url . "activate/";
+    error_log("Full URL: " . $full_url); // Log the full URL for debugging
+
+    // Send the POST request
+    $response = wp_remote_post($full_url, array(
         'body' => array('domain' => getMainDomain()),
     ));
 
+    // Check for errors in the response
     if (is_wp_error($response)) {
-        echo "Something went wrong: " . $response->get_error_message();
+        error_log("Something went wrong: " . $response->get_error_message());
     } else {
-        echo 'POST request sent successfully!';
+        error_log('POST request sent successfully!');
     }
 }
-register_activation_hook(__FILE__, 'lorybot_activate');
+
+
 
 

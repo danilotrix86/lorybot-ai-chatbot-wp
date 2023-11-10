@@ -1,10 +1,19 @@
 <?php
 
 function getMainDomain() {
-    $hostParts = explode('.', $_SERVER['HTTP_HOST']);
-    return (count($hostParts) > 1) ? 
-        $hostParts[count($hostParts) - 2] . '.' . $hostParts[count($hostParts) - 1] : 
-        $_SERVER['HTTP_HOST'];
+    if (isset($_SERVER['HTTP_HOST'])) {
+        $hostParts = explode('.', $_SERVER['HTTP_HOST']);
+        $domain = (count($hostParts) > 1) ? $hostParts[count($hostParts) - 2] . '.' . $hostParts[count($hostParts) - 1] : $_SERVER['HTTP_HOST'];
+
+        // Correct use of error_log function
+        error_log("getMainDomain: " . $domain);
+
+        return $domain;
+    } else {
+        // Handle the case where HTTP_HOST is not set
+        error_log("HTTP_HOST is not set");
+        return null;
+    }
 }
 
 function lorybot_redirect() {
