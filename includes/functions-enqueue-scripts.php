@@ -3,7 +3,7 @@
  * Enqueue styles and scripts for the Chatbot plugin
  */
 
-function my_chatbot_enqueue_scripts() {
+function lorybot_enqueue_scripts() {
     // Enqueue the chatbot's CSS
     wp_enqueue_style('my-chatbot-style', plugin_dir_url(__FILE__) . '../assets/css/style.css');
 
@@ -26,6 +26,6 @@ function my_chatbot_enqueue_scripts() {
 }
 
 // Hook the function to enqueue scripts and styles
-add_action('wp_enqueue_scripts', 'my_chatbot_enqueue_scripts');
+add_action('wp_enqueue_scripts', 'lorybot_enqueue_scripts');
 
 
