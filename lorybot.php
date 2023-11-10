@@ -20,8 +20,6 @@ require_once plugin_dir_path(__FILE__) . 'includes/functions-chat-process.php';
 require_once plugin_dir_path(__FILE__) . 'includes/functions-settings.php';
 
 
-
-
 // Function when the plugin is activated
 function lorybot_activate() {
     global $lorybot_server_url;

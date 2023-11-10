@@ -1,111 +1,85 @@
 const rootStyle = document.documentElement.style;
-
 rootStyle.setProperty('--main-color', chatbot_vars.main_color);
 rootStyle.setProperty('--background-color', chatbot_vars.background_color);
-
+rootStyle.setProperty('--title-color', chatbot_vars.title_color);
 
 const chatbotToggler = document.querySelector(".chatbot-toggler");
 const closeBtn = document.querySelector(".close-btn");
 const chatbox = document.querySelector(".chatbox");
 const chatInput = document.querySelector(".chat-input textarea");
 const sendChatBtn = document.querySelector(".chat-input span");
-
-let userMessage = null; // Variable to store user's message
 const inputInitHeight = chatInput.scrollHeight;
 
-const createChatLi = (message, className) => {
-    // Create a chat <li> element with passed message and className
+const createChatLi = (message, className, isBot = false) => {
     const chatLi = document.createElement("li");
-    chatLi.classList.add("chat", `${className}`);
-    let chatContent = className === "outgoing" ? `<p></p>` : `<span class="material-symbols-outlined">smart_toy</span><p></p>`;
-    chatLi.innerHTML = chatContent;
-    chatLi.querySelector("p").textContent = message;
-    return chatLi; // return chat <li> element
-}
+    chatLi.className = `chat ${className}`;
+    chatLi.innerHTML = isBot ? `<span class="material-symbols-outlined">smart_toy</span><p>${message}</p>` : `<p>${message}</p>`;
+    return chatLi;
+};
 
-const generateResponse = (chatElement) => {
-    const messageElement = chatElement.querySelector("p");
+const appendMessageToChatbox = (message, className, isBot = false) => {
+    const chatLi = createChatLi(message, className, isBot);
+    chatbox.appendChild(chatLi);
+    chatbox.scrollTo(0, chatbox.scrollHeight);
+};
 
+const createAndSendParams = (message) => {
     var params = new URLSearchParams();
     params.append('action', 'process_chatbot_message');
-    params.append('message', userMessage);
-    params.append('client_id', chatbot_vars.client_id);
-
-
-
-    fetch(chatbot_vars.ajax_url, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: params
-    })
-    .then(response => response.json())
-    .then(data => {
-
-        messageElement.textContent = data;
-
-        const typingElement = document.getElementById('chatbot-typing-indicator');
-        if (typingElement) {
-            typingElement.parentNode.removeChild(typingElement);
-        }
-        if (data.response) {
-            messageElement.innerHTML = data.response.trim();
-        } else {
-            messageElement.textContent = "Something went wrong. Please try again.";
-        }
-        chatbox.scrollTo(0, chatbox.scrollHeight);
-    })
-    .catch(() => {
-        messageElement.classList.add("error");
-        messageElement.textContent = "Oooops! Something went wrong. Please try again.";
-    });
-}
-
-
-const handleChat = () => {
-
-    userMessage = chatInput.value.trim(); // Get user entered message and remove extra whitespace
-    if(!userMessage) return;
-
-    var params = new URLSearchParams();
-    params.append('action', 'process_chatbot_message');
-    params.append('message', userMessage);
+    params.append('message', message);
     params.append('client_id', chatbot_vars.client_id);
     params.append('openai_key', chatbot_vars.openai_key);
     params.append('prompt', chatbot_vars.prompt);
+    return params;
+};
 
-    console.log(params.toString());
+const handleChatResponse = (chatElement, data) => {
+    const messageElement = chatElement.querySelector("p");
+    messageElement.textContent = data.response ? data.response.trim() : "Something went wrong. Please try again.";
+    chatbox.scrollTo(0, chatbox.scrollHeight);
+};
 
-   
+const handleErrorResponse = (chatElement) => {
+    const messageElement = chatElement.querySelector("p");
+    messageElement.classList.add("error");
+    messageElement.textContent = "Oooops! Something went wrong. Please try again.";
+};
 
-    // Clear the input textarea and set its height to default
+const generateResponse = (chatElement, userMessage) => {
+    const params = createAndSendParams(userMessage);
+
+    fetch(chatbot_vars.ajax_url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: params
+    })
+    .then(response => response.json())
+    .then(data => handleChatResponse(chatElement, data))
+    .catch(() => handleErrorResponse(chatElement));
+};
+
+const handleChat = () => {
+    const userMessage = chatInput.value.trim();
+    if (!userMessage) return;
+
     chatInput.value = "";
     chatInput.style.height = `${inputInitHeight}px`;
 
-    // Append the user's message to the chatbox
-    chatbox.appendChild(createChatLi(userMessage, "outgoing"));
-    chatbox.scrollTo(0, chatbox.scrollHeight);
-    
-    setTimeout(() => {
-        // Display "Thinking..." message while waiting for the response
-        const incomingChatLi = createChatLi("Thinking...", "incoming");
-        chatbox.appendChild(incomingChatLi);
-        chatbox.scrollTo(0, chatbox.scrollHeight);
-        generateResponse(incomingChatLi);
-    }, 600);
-}
+    appendMessageToChatbox(userMessage, "outgoing");
 
-chatInput.addEventListener("input", () => {
-    // Adjust the height of the input textarea based on its content
+    setTimeout(() => appendMessageToChatbox("Thinking...", "incoming", true), 600);
+    setTimeout(() => generateResponse(chatbox.lastChild, userMessage), 1200);
+};
+
+const adjustTextareaHeight = () => {
     chatInput.style.height = `${inputInitHeight}px`;
     chatInput.style.height = `${chatInput.scrollHeight}px`;
-});
+};
+
+chatInput.addEventListener("input", adjustTextareaHeight);
 
 chatInput.addEventListener("keydown", (e) => {
-    // If Enter key is pressed without Shift key and the window 
-    // width is greater than 800px, handle the chat
-    if(e.key === "Enter" && !e.shiftKey && window.innerWidth > 800) {
+    if (e.key === "Enter" && !e.shiftKey && window.innerWidth > 800) {
         e.preventDefault();
         handleChat();
     }

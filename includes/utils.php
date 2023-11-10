@@ -3,8 +3,8 @@
 function getMainDomain() {
     $hostParts = explode('.', $_SERVER['HTTP_HOST']);
     return (count($hostParts) > 1) ? 
-           $hostParts[count($hostParts) - 2] . '.' . $hostParts[count($hostParts) - 1] : 
-           $_SERVER['HTTP_HOST'];
+        $hostParts[count($hostParts) - 2] . '.' . $hostParts[count($hostParts) - 1] : 
+        $_SERVER['HTTP_HOST'];
 }
 
 function lorybot_redirect() {
@@ -33,5 +33,16 @@ function set_user_id_cookie() {
     }
 }
 add_action('init', 'set_user_id_cookie');
+
+
+function lorybot_enqueue_color_picker($hook_suffix) {
+    if ($hook_suffix === 'settings_page_lorybot-settings') {
+        wp_enqueue_style('wp-color-picker');
+        wp_enqueue_script('wp-color-picker');
+    }
+}
+add_action('admin_enqueue_scripts', 'lorybot_enqueue_color_picker');
+
+
 
 ?>

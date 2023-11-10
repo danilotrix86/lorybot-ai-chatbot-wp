@@ -1,66 +1,22 @@
 <?php
 
-// OPENAI ENABLED/ON/OFF Field
+$fields = [
+    ['lorybot_enabled_field', 'Activate Chatbot', 'lorybot_enable_callback'],
+    ['lorybot_api_field', 'LoryBot API Key', 'lorybot_api_callback'],
+    ['lorybot_prompt_field', 'Prompt', 'lorybot_prompt_callback'],
+    ['lorybot_embedding_field', 'Information Source', 'lorybot_embedding_callback'],
+    ['lorybot_chat_display_field', 'Chat Display', 'lorybot_chat_display_callback'],
+    ['lorybot_main_color_field', 'Main Color', 'lorybot_main_color_callback'],
+    ['lorybot_title_color_field', 'Title Color', 'lorybot_title_color_callback'],
+    ['lorybot_background_color_field', 'Background Color', 'lorybot_background_color_callback']
+];
+
+foreach ($fields as $field) {
     add_settings_field(
-        'my_chatbot_enabled_field',
-        'Activate Chatbot',
-        'my_chatbot_enable_callback',
-        'lorybot-settings',
-        'my_chatbot_main_section'
+        $field[0],  // Field ID
+        $field[1],  // Title
+        $field[2],  // Callback
+        'lorybot-settings',      // Page
+        'lorybot_main_section'   // Section
     );
-
-
-    // LoryBot API KEY Field
-    add_settings_field(
-        'my_chatbot_lorybot_api_field',
-        'LoryBot API Key',
-        'my_chatbot_lorybot_api_callback',
-        'lorybot-settings',
-        'my_chatbot_main_section'
-    );
-
-    // PROMPT field
-    add_settings_field(
-        'my_chatbot_prompt_field',
-        'Prompt',
-        'my_chatbot_prompt_callback',
-        'lorybot-settings',
-        'my_chatbot_main_section'
-    );
-
-    // Embedding Field
-    add_settings_field(
-        'my_chatbot_embedding_field',
-        'Information Source',
-        'my_chatbot_embedding_callback',
-        'lorybot-settings',
-        'my_chatbot_main_section'
-    );
-
-
-    // CHAT Display Field
-    add_settings_field(
-        'my_chatbot_chat_display_field',
-        'Chat Display',
-        'my_chatbot_chat_display_callback',
-        'lorybot-settings',
-        'my_chatbot_main_section'
-    );
-
-    // Main Color Field
-    add_settings_field(
-        'my_chatbot_main_color_field',
-        'Main Color',
-        'my_chatbot_main_color_callback',
-        'lorybot-settings',
-        'my_chatbot_main_section'
-    );
-
-    // Background Color Field
-    add_settings_field(
-        'my_chatbot_background_color_field',
-        'Background Color',
-        'my_chatbot_background_color_callback',
-        'lorybot-settings',
-        'my_chatbot_main_section'
-    );
+}
