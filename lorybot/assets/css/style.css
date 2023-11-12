@@ -23,7 +23,6 @@
   border-radius: 50%;
   background: var(--main-color);
   transition: all 0.2s ease;
-  z-index: 9999;
 }
 body.show-chatbot .chatbot-toggler {
   transform: rotate(90deg);
