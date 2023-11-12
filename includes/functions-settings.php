@@ -5,11 +5,13 @@ include_once 'settings/callbacks.php';
 include_once 'settings/sanitaze.php';
 
 function lorybot_register_settings_page() {
+    error_log('lorybot_register_settings_page');
     add_options_page('LoryBot Settings', 'LoryBot Settings', 'manage_options', 'lorybot-settings', 'lorybot_settings_page_content');
 }
 add_action('admin_menu', 'lorybot_register_settings_page');
 
 function lorybot_settings_init() {
+    error_log('lorybot_settings_init');
     register_setting('lorybot_settings', 'lorybot_options', 'lorybot_sanitize_options');
     add_settings_section('lorybot_main_section', 'Main Settings', 'lorybot_section_callback', 'lorybot-settings');
     include_once 'settings/fields.php';
@@ -18,6 +20,7 @@ add_action('admin_init', 'lorybot_settings_init');
 
 
 function lorybot_settings_page_content() {
+    error_log('lorybot_settings_page_content');
     ?>
     <div class="wrap">
         <h1>Chatbot Settings</h1>
@@ -33,6 +36,7 @@ function lorybot_settings_page_content() {
 }
 
 function lorybot_function_after_update($updated_values) {
+    error_log('lorybot_function_after_update');
     $client_id = getMainDomain();
     $json = [
         'lorybot_api' => $updated_values['lorybot_api'] ?? '',
@@ -59,6 +63,8 @@ function lorybot_function_after_update($updated_values) {
 }
 
 function lorybot_option_updated($option_name, $old_value, $value) {
+    error_log('lorybot_option_updated');
+    error_log('option_name: ' . $option_name);
     if ($option_name === 'lorybot_options') {
         lorybot_function_after_update($value);
     }

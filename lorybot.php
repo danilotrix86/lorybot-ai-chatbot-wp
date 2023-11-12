@@ -11,7 +11,8 @@
  defined('ABSPATH') or exit;
 
 // Set the server URL as an option
-update_option('lorybot_server_url', 'https://lorybot.pythonanywhere.com/');
+#update_option('lorybot_server_url', 'https://lorybot.pythonanywhere.com/');
+update_option('lorybot_server_url', 'http://127.0.0.1:5000/');
 
   
 require_once plugin_dir_path(__FILE__) . 'includes/utils.php';
@@ -29,6 +30,14 @@ function lorybot_activate() {
     $response = wp_remote_post($lorybot_server_url . "activate/", array(
         'body' => array('domain' => getMainDomain()),
     ));
+
+
+    // Check if the option already exists
+    if (false === get_option('lorybot_options')) {
+        // Option does not exist, so add the default value
+        add_option('lorybot_options', array());
+    }
+
 
     if (is_wp_error($response)) {
         echo "Something went wrong: " . $response->get_error_message();
