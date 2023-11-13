@@ -34,16 +34,30 @@ const createAndSendParams = (message) => {
 };
 
 const handleChatResponse = (chatElement, data) => {
+    // Select the paragraph element within the chat element
     const messageElement = chatElement.querySelector("p");
-    let message = data.response ? data.response.trim() : "Something went wrong. Please try again.";
-    console.log(message);
-    // Replace '**text**' with '<strong>text</strong>'
-    message = message.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
 
-    // Set innerHTML to render HTML content, including the <strong> tags
+    // Use a ternary operator for concise handling of undefined or null responses
+    let message = data.response ? data.response.trim() : "Something went wrong. Please try again.";
+
+    // Regular expression for bold markdown text
+    const boldRegex = /\*\*(.*?)\*\*/g;
+    // Regular expression for markdown links
+    const linkRegex = /\[(.*?)\]\((.*?)\)/g;
+
+    // Replace markdown-style bold text with HTML strong tags
+    message = message.replace(boldRegex, "<strong>$1</strong>");
+    // Replace markdown-style links with HTML anchor tags
+    message = message.replace(linkRegex, '<a href="$2" target="_blank">$1</a>');
+
+    // Update the innerHTML of the message element
     messageElement.innerHTML = message;
+
+    // Scroll the chatbox to the bottom to show the latest message
     chatbox.scrollTo(0, chatbox.scrollHeight);
 };
+
+
 
 
 const handleErrorResponse = (chatElement) => {
