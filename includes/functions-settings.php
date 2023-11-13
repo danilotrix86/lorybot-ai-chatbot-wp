@@ -38,11 +38,13 @@ function lorybot_settings_page_content() {
 function lorybot_function_after_update($updated_values) {
     error_log('lorybot_function_after_update');
     $client_id = getMainDomain();
+    $custom_id = get_option('lorybot_custom_id');
     $json = [
         'lorybot_api' => $updated_values['lorybot_api'] ?? '',
         'embedding' => $updated_values['embedding'] ?? '',
         'client_id' => $client_id,
         'prompt' => $updated_values['prompt'] ?? '',
+        'custom_id' => $custom_id,
     ];
 
     $lorybot_server_url = get_option('lorybot_server_url');
