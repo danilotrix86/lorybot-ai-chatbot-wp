@@ -26,7 +26,7 @@ require_once plugin_dir_path(__FILE__) . 'includes/functions-settings.php';
 function lorybot_activate() {
 
     $lorybot_server_url = get_option('lorybot_server_url');
-    $customID = generate_uuid()
+    $customID = generate_uuid();
     update_option('lorybot_custom_id', $customID);
     add_option('lorybot_do_activation_redirect', true);
 
