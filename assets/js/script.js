@@ -35,14 +35,22 @@ const createAndSendParams = (message) => {
 
 const handleChatResponse = (chatElement, data) => {
     const messageElement = chatElement.querySelector("p");
-    messageElement.textContent = data.response ? data.response.trim() : "Something went wrong. Please try again.";
+    let message = data.response ? data.response.trim() : "Something went wrong. Please try again.";
+
+    // Replace '**text**' with '<strong>text</strong>'
+    message = message.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
+
+    // Set innerHTML to render HTML content, including the <strong> tags
+    messageElement.innerHTML = message;
     chatbox.scrollTo(0, chatbox.scrollHeight);
 };
+
 
 const handleErrorResponse = (chatElement) => {
     const messageElement = chatElement.querySelector("p");
     messageElement.classList.add("error");
-    messageElement.textContent = "Oooops! Something went wrong. Please try again.";
+    // Use innerHTML for consistency, but the content here is controlled and does not need sanitization
+    messageElement.innerHTML = "Oooops! Something went wrong. Please try again.";
 };
 
 const generateResponse = (chatElement, userMessage) => {
