@@ -24,18 +24,13 @@ require_once plugin_dir_path(__FILE__) . 'includes/functions-settings.php';
 
 // Function when the plugin is activated
 function lorybot_activate() {
-
     $lorybot_server_url = get_option('lorybot_server_url');
-    $customID = generate_uuid()
-    update_option('lorybot_custom_id', $customID);
     add_option('lorybot_do_activation_redirect', true);
 
     $response = wp_remote_post($lorybot_server_url . "activate/", array(
-        'body' => array(
-            'domain' => getMainDomain(),
-            'custom_id' => $customID,
-        ),
+        'body' => array('domain' => getMainDomain()),
     ));
+
 
     // Check if the option already exists
     if (false === get_option('lorybot_options')) {
