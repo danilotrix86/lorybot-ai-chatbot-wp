@@ -36,7 +36,7 @@ const createAndSendParams = (message) => {
 const handleChatResponse = (chatElement, data) => {
     const messageElement = chatElement.querySelector("p");
     let message = data.response ? data.response.trim() : "Something went wrong. Please try again.";
-
+    console.log(message);
     // Replace '**text**' with '<strong>text</strong>'
     message = message.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
 
