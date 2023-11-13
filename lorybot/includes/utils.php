@@ -38,7 +38,7 @@ function generate_uuid() {
 
 function set_user_id_cookie() {
     if (!isset($_COOKIE['user_id'])) {
-        setcookie('user_id', generate_uuid(), time() + 86400, "/", '', isset($_SERVER["HTTPS"]), true);
+        setcookie('user_id', generate_uuid(), time() + 3600, "/", '', isset($_SERVER["HTTPS"]), true);
     }
 }
 add_action('init', 'set_user_id_cookie');

@@ -5,12 +5,14 @@ function process_chatbot_message() {
     $user_id = sanitize_text_field($_COOKIE['user_id'] ?? '');
     $user_message = sanitize_text_field($_POST['message'] ?? '');
     $client_id = getMainDomain();
+    $custom_id = get_option('lorybot_custom_id');
 
     // Prepare the data payload for the POST request
     $data = http_build_query([
         'project_domain' => $client_id,
         'message' => $user_message,
         'user_id' => $user_id,
+        'custom_id' => $custom_id
     ]);
 
     // Set up the HTTP context for the POST request
