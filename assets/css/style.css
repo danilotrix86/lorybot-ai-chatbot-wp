@@ -155,6 +155,7 @@ header h2 {
   outline: none;
   resize: none;
   max-height: 180px;
+  min-height: 0px;
   padding: 15px 15px 15px 0;
   font-size: 0.95rem;
 }

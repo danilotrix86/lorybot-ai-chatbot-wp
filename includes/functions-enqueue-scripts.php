@@ -23,10 +23,12 @@ function lorybot_enqueue_scripts() {
         'background_color' => get_option('lorybot_options')['background_color'],
         'title_color' => get_option('lorybot_options')['title_color'],
         'chat_display' => get_option('lorybot_options')['chat_display'],
+        'custom_id' => get_option('lorybot_custom_id'),
+        'user_id' => $_COOKIE['user_id'],
+        'server_url' => get_option('lorybot_server_url'),
+
     ));
 }
 
 // Hook the function to enqueue scripts and styles
 add_action('wp_enqueue_scripts', 'lorybot_enqueue_scripts');
-
-
