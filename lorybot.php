@@ -11,14 +11,13 @@
  defined('ABSPATH') or exit;
 
 // Set the server URL as an option
-update_option('lorybot_server_url', 'https://lorybot.pythonanywhere.com/');
-#update_option('lorybot_server_url', 'http://127.0.0.1:5000/');
+#update_option('lorybot_server_url', 'https://lorybot.pythonanywhere.com/');
+update_option('lorybot_server_url', 'http://127.0.0.1:5000/');
 
   
 require_once plugin_dir_path(__FILE__) . 'includes/utils.php';
 require_once plugin_dir_path(__FILE__) . 'includes/functions-enqueue-scripts.php';
 require_once plugin_dir_path(__FILE__) . 'includes/functions-chat-display.php';
-require_once plugin_dir_path(__FILE__) . 'includes/functions-chat-process.php';
 require_once plugin_dir_path(__FILE__) . 'includes/functions-settings.php';
     
 

@@ -33,30 +33,18 @@ const createAndSendParams = (message) => {
     return params;
 };
 
-const handleChatResponse = (chatElement, data) => {
-    // Select the paragraph element within the chat element
-    const messageElement = chatElement.querySelector("p");
 
-    // Use a ternary operator for concise handling of undefined or null responses
-    let message = data.response ? data.response.trim() : "Something went wrong. Please try again.";
+function processFinalMessage(pElement) {
+    console.log("Final message before processing:", pElement.innerHTML);
 
     // Regular expression for bold markdown text
     const boldRegex = /\*\*(.*?)\*\*/g;
-    // Regular expression for markdown links
-    const linkRegex = /\[(.*?)\]\((.*?)\)/g;
 
     // Replace markdown-style bold text with HTML strong tags
-    message = message.replace(boldRegex, "<strong>$1</strong>");
-    // Replace markdown-style links with HTML anchor tags
-    message = message.replace(linkRegex, '<a href="$2" target="_blank">$1</a>');
+    pElement.innerHTML = pElement.innerHTML.replace(boldRegex, "<strong>$1</strong>");
 
-    // Update the innerHTML of the message element
-    messageElement.innerHTML = message;
-
-    // Scroll the chatbox to the bottom to show the latest message
-    chatbox.scrollTo(0, chatbox.scrollHeight);
-};
-
+    console.log("Final message after processing:", pElement.innerHTML);
+}
 
 
 
@@ -67,18 +55,74 @@ const handleErrorResponse = (chatElement) => {
     messageElement.innerHTML = "Oooops! Something went wrong. Please try again.";
 };
 
-const generateResponse = (chatElement, userMessage) => {
-    const params = createAndSendParams(userMessage);
 
-    fetch(chatbot_vars.ajax_url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: params
-    })
-    .then(response => response.json())
-    .then(data => handleChatResponse(chatElement, data))
-    .catch(() => handleErrorResponse(chatElement));
+
+
+const generateResponse = async (chatElement, userMessage) => {
+    try {
+        const serverURL = chatbot_vars.server_url;
+        console.log("Sending request to: " + serverURL);
+        const response = await fetch(serverURL + 'chat', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                user_id: chatbot_vars.user_id,
+                message: userMessage,
+                custom_id: chatbot_vars.custom_id,
+                project_domain: chatbot_vars.client_id,
+            }),
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const decoder = new TextDecoder();
+        const reader = response.body.getReader();
+
+        console.log("Starting to read the stream...");
+        let chunks = "";
+
+        while (true) {
+            const { done, value } = await reader.read();
+            if (done) {
+                console.log("Stream reading completed.");
+
+                const lastChatLi = chatbox.querySelector("li.chat:last-child");
+                if (lastChatLi) {
+                    const lastP = lastChatLi.querySelector("p:last-child");
+                    if (lastP) {
+                        lastP.innerHTML = chunks; // Update the existing <p> element
+                        processFinalMessage(lastP); // Process for formatting
+                    }
+                }
+                chatbox.scrollTo(0, chatbox.scrollHeight);
+                break;
+            }
+            chunks += decoder.decode(value, { stream: true });
+
+            const lastChatLi = chatbox.querySelector("li.chat:last-child");
+            if (lastChatLi) {
+                let lastP = lastChatLi.querySelector("p:last-child");
+                if (!lastP) {
+                    lastP = document.createElement('p'); // Create new <p> if not exists
+                    lastChatLi.appendChild(lastP);
+                }
+                lastP.textContent = chunks; // Update text content with new chunks
+            }
+            chatbox.scrollTo(0, chatbox.scrollHeight);
+        }
+    } catch (error) {
+        console.error('Fetch error:', error);
+        handleErrorResponse(chatElement);
+    }
 };
+
+
+
+
 
 const handleChat = () => {
     const userMessage = chatInput.value.trim();
