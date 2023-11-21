@@ -41,8 +41,7 @@ function set_user_id_cookie() {
         setcookie('user_id', generate_uuid(), time() + 3600, "/", '', isset($_SERVER["HTTPS"]), true);
     }
 }
-add_action('init', 'set_user_id_cookie');
-
+add_action('after_setup_theme', 'set_user_id_cookie');
 
 function lorybot_enqueue_color_picker($hook_suffix) {
     if ($hook_suffix === 'settings_page_lorybot-settings') {

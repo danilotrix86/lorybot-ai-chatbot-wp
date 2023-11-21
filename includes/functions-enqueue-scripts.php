@@ -14,9 +14,13 @@ function lorybot_enqueue_scripts() {
     wp_enqueue_style('material-symbols-rounded', 'https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@48,400,1,0');
 
 
+    // Ensure the 'user_id' cookie is set
     if (!isset($_COOKIE['user_id'])) {
         set_user_id_cookie();
     }
+
+    // Retrieve the 'user_id' cookie value, ensuring it's now set
+    $user_id = isset($_COOKIE['user_id']) ? $_COOKIE['user_id'] : 'default_value'; // Replace 'default_value' with a suitable default
 
     // Pass some PHP variables to JavaScript
     wp_localize_script('lorybot-script', 'chatbot_vars', array(
@@ -29,7 +33,7 @@ function lorybot_enqueue_scripts() {
         'title_color' => get_option('lorybot_options')['title_color'],
         'chat_display' => get_option('lorybot_options')['chat_display'],
         'custom_id' => get_option('lorybot_custom_id'),
-        'user_id' => $_COOKIE['user_id'],
+        'user_id' => $user_id,
         'server_url' => get_option('lorybot_server_url'),
 
     ));
