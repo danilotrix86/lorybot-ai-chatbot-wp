@@ -13,6 +13,11 @@ function lorybot_enqueue_scripts() {
     wp_enqueue_style('material-symbols-outlined', 'https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@48,400,0,0');
     wp_enqueue_style('material-symbols-rounded', 'https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@48,400,1,0');
 
+
+    if (!isset($_COOKIE['user_id'])) {
+        set_user_id_cookie();
+    }
+
     // Pass some PHP variables to JavaScript
     wp_localize_script('lorybot-script', 'chatbot_vars', array(
         'ajax_url' => admin_url('admin-ajax.php'),
