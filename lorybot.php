@@ -44,7 +44,6 @@ function lorybot_activate() {
         'method'    => 'POST',
         'headers'   => array(
             'Content-Type' => 'application/json',
-            'API-KEY' => $customID, // Add API key to the request header
         ),
         'body'      => json_encode($json),
         'sslverify' => false,

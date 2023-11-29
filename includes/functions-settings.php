@@ -24,6 +24,7 @@ function lorybot_settings_page_content() {
     ?>
     <div class="wrap">
         <h1>Chatbot Settings</h1>
+        <?php settings_errors(); ?> <!-- Display settings errors here -->
         <form action="options.php" method="post">
             <?php
             settings_fields('lorybot_settings');
@@ -40,7 +41,6 @@ function lorybot_function_after_update($updated_values) {
     $client_id = getMainDomain();
     $custom_id = get_option('lorybot_custom_id');
     $json = [
-        'lorybot_api' => $updated_values['lorybot_api'] ?? '',
         'embedding' => $updated_values['embedding'] ?? '',
         'client_id' => $client_id,
         'prompt' => $updated_values['prompt'] ?? '',
@@ -52,18 +52,29 @@ function lorybot_function_after_update($updated_values) {
         'method'    => 'POST',
         'headers'   => [
             'Content-Type' => 'application/json',
-            'LORYBOT-API-KEY' => $custom_id, // Add API key to the request header
+            'LORYBOT-APId-KEY' => $custom_id, // Add API key to the request header
         ],
         'body'      => json_encode($json),
         'sslverify' => false,
         'timeout'   => 60
     ]);
+    
 
     if (is_wp_error($response)) {
         error_log("WP_Error when updating settings: " . $response->get_error_message());
+        return false;
     } else {
-        error_log("Received response code: " . wp_remote_retrieve_response_code($response) . 
-                  " - Body: " . wp_remote_retrieve_body($response));
+        $response_code = wp_remote_retrieve_response_code($response);
+        $response_body = wp_remote_retrieve_body($response);
+        error_log("Received response code: " . $response_code . 
+                  " - Body: " . $response_body);
+
+        if ($response_code == 401) {
+            error_log("Unauthorized access. API Key missing or incorrect.");
+            return false; // Indicate failure due to unauthorized access
+        }
+        
+        return ($response_code == 200); // Return true if response code is 200
     }
 }
 
@@ -71,7 +82,22 @@ function lorybot_option_updated($option_name, $old_value, $value) {
     error_log('lorybot_option_updated');
     error_log('option_name: ' . $option_name);
     if ($option_name === 'lorybot_options') {
-        lorybot_function_after_update($value);
+        $update_success = lorybot_function_after_update($value);
+
+        if (!$update_success) {
+            // Add an error message to be displayed
+            add_settings_error(
+                'lorybot_options',
+                'lorybot_update_failed',
+                'There was an error updating the settings.',
+                'error'
+            );
+
+            // Reset the option to its old value to prevent saving the new settings
+            update_option('lorybot_options', $old_value);
+
+            // Optionally, you might want to redirect back to the settings page
+        }
     }
 }
 add_action('updated_option', 'lorybot_option_updated', 10, 3);
