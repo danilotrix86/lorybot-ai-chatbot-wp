@@ -1,5 +1,5 @@
 <?php
-
+ob_start();
 function getMainDomain() {
     if (isset($_SERVER['HTTP_HOST'])) {
         $hostParts = explode('.', $_SERVER['HTTP_HOST']);
@@ -36,12 +36,14 @@ function generate_uuid() {
     );
 }
 
+
+add_action('init', 'set_user_id_cookie');
 function set_user_id_cookie() {
     if (!isset($_COOKIE['user_id'])) {
-        setcookie('user_id', generate_uuid(), time() + 3600, "/", '', isset($_SERVER["HTTPS"]), true);
+        $user_id = generate_uuid(); // Ensure this function exists in your plugin to generate UUID.
+        setcookie('user_id', $user_id, time() + (86400), "/"); // Set for 1 day
     }
 }
-add_action('after_setup_theme', 'set_user_id_cookie');
 
 function lorybot_enqueue_color_picker($hook_suffix) {
     if ($hook_suffix === 'settings_page_lorybot-settings') {
@@ -52,5 +54,8 @@ function lorybot_enqueue_color_picker($hook_suffix) {
 add_action('admin_enqueue_scripts', 'lorybot_enqueue_color_picker');
 
 
-
+function lorybot_end_output_buffering() {
+    if (ob_get_length()) ob_end_flush();
+}
+add_action('shutdown', 'lorybot_end_output_buffering');
 ?>
