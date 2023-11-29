@@ -35,17 +35,23 @@ function lorybot_activate() {
     $customID = generate_uuid();
     update_option('lorybot_custom_id', $customID);
 
+    $json = [
+        'domain' => getMainDomain(),
+        'custom_id' => $customID,
+    ];
+
     $args = array(
-        'body' => array(
-            'domain' => getMainDomain(),
-            'custom_id' => $customID,
+        'method'    => 'POST',
+        'headers'   => array(
+            'Content-Type' => 'application/json',
+            'API-KEY' => $customID, // Add API key to the request header
         ),
-        'headers' => array(
-            'LORYBOT-API-KEY' => $customID, // Add API key to the request header
-        ),
+        'body'      => json_encode($json),
+        'sslverify' => false,
+        'timeout'   => 60,
     );
 
-    $response = wp_remote_post($lorybot_server_url . "activate/", $args);
+    $response = wp_remote_post($lorybot_server_url . "/activate/", $args);
 
     // Check if the option already exists
     if (false === get_option('lorybot_options')) {

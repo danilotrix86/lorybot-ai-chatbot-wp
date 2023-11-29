@@ -48,9 +48,12 @@ function lorybot_function_after_update($updated_values) {
     ];
 
     $lorybot_server_url = get_option('lorybot_server_url');
-    $response = wp_remote_post($lorybot_server_url . "/updatesettings", [
+    $response = wp_remote_post($lorybot_server_url . "/updatesettings/", [
         'method'    => 'POST',
-        'headers'   => ['Content-Type' => 'application/json'],
+        'headers'   => [
+            'Content-Type' => 'application/json',
+            'LORYBOT-API-KEY' => $custom_id, // Add API key to the request header
+        ],
         'body'      => json_encode($json),
         'sslverify' => false,
         'timeout'   => 60
