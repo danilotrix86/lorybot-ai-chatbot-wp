@@ -6,7 +6,7 @@ function lorybot_sanitize_options($input) {
     $fields = [
         'url' => 'esc_url_raw',
         'chat_enabled' => null,
-        'lorybot_api' => 'sanitize_text_field',
+        'custom_id' => null,
         'prompt' => null,
         'embedding' => null,
         'chat_display' => null,

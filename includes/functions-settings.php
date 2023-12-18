@@ -39,7 +39,11 @@ function lorybot_settings_page_content() {
 function lorybot_function_after_update($updated_values) {
     error_log('lorybot_function_after_update');
     $client_id = getMainDomain();
-    $custom_id = get_option('lorybot_custom_id');
+    $options = get_option('lorybot_options');
+    $custom_id = isset($options['custom_id']) ? $options['custom_id'] : ''; 
+
+    error_log('Update Settings custom_id: ' . $custom_id);
+
     $json = [
         'embedding' => $updated_values['embedding'] ?? '',
         'client_id' => $client_id,
@@ -52,7 +56,7 @@ function lorybot_function_after_update($updated_values) {
         'method'    => 'POST',
         'headers'   => [
             'Content-Type' => 'application/json',
-            'LORYBOT-APId-KEY' => $custom_id, // Add API key to the request header
+            'LORYBOT-API-KEY' => $custom_id, // Add API key to the request header
         ],
         'body'      => json_encode($json),
         'sslverify' => false,

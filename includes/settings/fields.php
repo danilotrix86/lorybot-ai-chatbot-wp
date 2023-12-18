@@ -2,7 +2,7 @@
 
 $fields = [
     ['lorybot_enabled_field', 'Activate Chatbot', 'lorybot_enable_callback'],
-    ['lorybot_api_field', 'LoryBot API Key', 'lorybot_api_callback'],
+    ['lorybot_custom_id_field', 'LoryBot API Key', 'lorybot_custom_id_callback'],
     ['lorybot_prompt_field', 'Prompt', 'lorybot_prompt_callback'],
     ['lorybot_embedding_field', 'Information Source', 'lorybot_embedding_callback'],
     ['lorybot_chat_display_field', 'Chat Display', 'lorybot_chat_display_callback'],

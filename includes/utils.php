@@ -55,7 +55,11 @@ add_action('admin_enqueue_scripts', 'lorybot_enqueue_color_picker');
 
 
 function lorybot_end_output_buffering() {
-    if (ob_get_length()) ob_end_flush();
+    // Check if output buffering is active before ending it.
+    if (ob_get_level() > 0 && ob_get_length() > 0) {
+        ob_end_flush();
+    }
 }
+
 add_action('shutdown', 'lorybot_end_output_buffering');
 ?>

@@ -16,16 +16,14 @@ function lorybot_enable_callback() {
     <?php
 }
 
-function lorybot_text_input_callback($option_name, $type = 'text') {
-    $option_value = get_lorybot_option($option_name);
-    ?>
-    <input value="<?php echo esc_attr($option_value); ?>" type="<?php echo $type; ?>" name="lorybot_options[<?php echo $option_name; ?>]" id="lorybot_<?php echo $option_name; ?>_field">
-    <?php
+
+function lorybot_custom_id_callback() {
+    $options = get_option('lorybot_options');
+    $custom_id = isset($options['custom_id']) ? $options['custom_id'] : ''; 
+    echo '<input value="' . esc_attr($custom_id) . '" type="text" name="lorybot_options[custom_id]" id="lorybot_custom_id_field" readonly>';
 }
 
-function lorybot_api_callback() {
-    lorybot_text_input_callback('lorybot_api');
-}
+
 
 function lorybot_prompt_callback() {
     $prompt = get_lorybot_option('prompt');
