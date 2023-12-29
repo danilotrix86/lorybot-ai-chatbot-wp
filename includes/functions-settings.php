@@ -38,7 +38,6 @@ function lorybot_settings_page_content() {
 
 function lorybot_function_after_update($updated_values) {
     error_log('lorybot_function_after_update');
-    $client_id = getMainDomain();
     $options = get_option('lorybot_options');
     $custom_id = isset($options['custom_id']) ? $options['custom_id'] : ''; 
 
@@ -46,13 +45,12 @@ function lorybot_function_after_update($updated_values) {
 
     $json = [
         'embedding' => $updated_values['embedding'] ?? '',
-        'client_id' => $client_id,
         'prompt' => $updated_values['prompt'] ?? '',
         'custom_id' => $custom_id,
     ];
 
     $lorybot_server_url = get_option('lorybot_server_url');
-    $response = wp_remote_post($lorybot_server_url . "/updatesettings/", [
+    $response = wp_remote_post($lorybot_server_url . "settings", [
         'method'    => 'POST',
         'headers'   => [
             'Content-Type' => 'application/json',
@@ -83,8 +81,13 @@ function lorybot_function_after_update($updated_values) {
 }
 
 function lorybot_option_updated($option_name, $old_value, $value) {
-    error_log('lorybot_option_updated');
-    error_log('option_name: ' . $option_name);
+
+    // Skip if activation is in progress
+    if (isset($GLOBALS['is_lorybot_activating']) && $GLOBALS['is_lorybot_activating']) {
+        error_log('Skipping lorybot_option_updated during activation');
+        return;
+    }
+    error_log('lorybot_option_updated called for option: ' . $option_name);
     if ($option_name === 'lorybot_options') {
         $update_success = lorybot_function_after_update($value);
 

@@ -40,8 +40,25 @@ document.addEventListener("DOMContentLoaded", function() {
             };
 
             const appendMessageToChatbox = (message, className, isBot = false) => {
-                const chatLi = createChatLi(message, className, isBot);
-                chatbox.appendChild(chatLi);
+                let chatLi;
+                let messageP;
+            
+                // Check if the last message in the chatbox is from the server
+                if (isBot && chatbox.lastChild && chatbox.lastChild.classList.contains('incoming')) {
+                    chatLi = chatbox.lastChild;
+                    messageP = chatLi.querySelector("p");
+                    
+                    // Check if the current content is "Thinking..." and replace it, otherwise append
+                    if (messageP.innerHTML === "Thinking...") {
+                        messageP.innerHTML = message;
+                    } else {
+                        messageP.innerHTML += message;
+                    }
+                } else {
+                    chatLi = createChatLi(message, className, isBot);
+                    chatbox.appendChild(chatLi);
+                }
+            
                 chatbox.scrollTo(0, chatbox.scrollHeight);
             };
 
@@ -80,83 +97,41 @@ document.addEventListener("DOMContentLoaded", function() {
                 messageElement.innerHTML = "Oooops! Something went wrong. Please try again.";
             };
 
-            console.log("user_id: " + chatbot_vars.user_id);
+            const generateResponse = (userMessage, userId) => {
+                const customId = chatbot_vars.custom_id; // Assuming this is how you get customId
+                const encodedMessage = encodeURIComponent(userMessage);
+                const serverURL = chatbot_vars.server_url;
+                console.log ("serverURL: " + serverURL, "customId: " + customId, "encodedMessage: " + encodedMessage, "userId: " + userId);
+                const url = `${serverURL}chat?custom_id=${customId}&message=${encodedMessage}&user_id=${userId}`;
 
-            const generateResponse = async (chatElement, userMessage, userId) => {
-                try {
-                    const serverURL = chatbot_vars.server_url;
-                    console.log("Sending request to: " + serverURL);
-                    console.log("user_id: " + userId);
-                    const response = await fetch(serverURL + 'chat', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                            user_id: userId,
-                            message: userMessage,
-                            custom_id: chatbot_vars.custom_id,
-                            project_domain: chatbot_vars.client_id,
-                        }),
-                    });
+                const eventSource = new EventSource(url);
 
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
+                eventSource.onmessage = function(event) {
+                    // Append each new message received from the server
+                    appendMessageToChatbox(event.data, "incoming", true);
+                };
 
-                    const decoder = new TextDecoder();
-                    const reader = response.body.getReader();
-
-                    console.log("Starting to read the stream...");
-                    let chunks = "";
-
-                    while (true) {
-                        const { done, value } = await reader.read();
-                        if (done) {
-                            console.log("Stream reading completed.");
-
-                            const lastChatLi = chatbox.querySelector("li.chat:last-child");
-                            if (lastChatLi) {
-                                const lastP = lastChatLi.querySelector("p:last-child");
-                                if (lastP) {
-                                    lastP.innerHTML = chunks;
-                                    processFinalMessage(lastP);
-                                }
-                            }
-                            chatbox.scrollTo(0, chatbox.scrollHeight);
-                            break;
-                        }
-                        chunks += decoder.decode(value, { stream: true });
-
-                        const lastChatLi = chatbox.querySelector("li.chat:last-child");
-                        if (lastChatLi) {
-                            let lastP = lastChatLi.querySelector("p:last-child");
-                            if (!lastP) {
-                                lastP = document.createElement('p');
-                                lastChatLi.appendChild(lastP);
-                            }
-                            lastP.textContent = chunks;
-                        }
-                        chatbox.scrollTo(0, chatbox.scrollHeight);
-                    }
-                } catch (error) {
-                    console.error('Fetch error:', error);
-                    handleErrorResponse(chatElement);
-                }
+                eventSource.onerror = function(error) {
+                    console.error("EventSource failed:", error);
+                    eventSource.close();
+                    handleErrorResponse(); // Existing error handling function
+                };
             };
+
+            
 
             const handleChat = () => {
                 const userMessage = chatInput.value.trim();
                 if (!userMessage) return;
                 const userId = getCookie('user_id');
-                console.log("huser_id: " + userId);
+                console.log("user_id: " + userId);
                 chatInput.value = "";
                 chatInput.style.height = `${inputInitHeight}px`;
-
+            
                 appendMessageToChatbox(userMessage, "outgoing");
-
+            
                 setTimeout(() => appendMessageToChatbox("Thinking...", "incoming", true), 600);
-                setTimeout(() => generateResponse(chatbox.lastChild, userMessage, userId), 1200);
+                setTimeout(() => generateResponse(userMessage, userId), 1200); // Corrected this line
             };
 
             const adjustTextareaHeight = () => {
