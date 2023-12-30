@@ -37,14 +37,6 @@ function generate_uuid() {
 }
 
 
-add_action('init', 'set_user_id_cookie');
-function set_user_id_cookie() {
-    if (!isset($_COOKIE['user_id'])) {
-        $user_id = generate_uuid(); // Ensure this function exists in your plugin to generate UUID.
-        setcookie('user_id', $user_id, time() + (86400), "/"); // Set for 1 day
-    }
-}
-
 function lorybot_enqueue_color_picker($hook_suffix) {
     if ($hook_suffix === 'settings_page_lorybot-settings') {
         wp_enqueue_style('wp-color-picker');

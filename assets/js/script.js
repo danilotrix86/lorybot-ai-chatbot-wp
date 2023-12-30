@@ -1,24 +1,34 @@
-function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-        const cookies = document.cookie.split(';');
-        for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i].trim();
-            if (cookie.startsWith(name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-            }
+document.addEventListener("DOMContentLoaded", function() {
+
+    // Function to set the user_id cookie for 1 day
+    function setUserIdCookie() {
+        if (!document.cookie.split(';').some((item) => item.trim().startsWith('user_id='))) {
+            var d = new Date();
+            d.setTime(d.getTime() + (86400 * 1000)); // Set the cookie to expire in 1 day
+            var expires = "expires=" + d.toUTCString();
+            var userId = generateUserId();
+            document.cookie = "user_id=" + userId + ";" + expires + ";path=/";
         }
     }
-    return cookieValue;
-}
+
+    function getCookie(name) {
+        let value = `; ${document.cookie}`;
+        let parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop().split(';').shift();
+    }
+    // Function to generate a unique user ID (UUID)
+    function generateUserId() {
+        // Simple version of UUID generation logic
+        // Consider using a more robust method or a library if needed
+        return 'uid_' + Math.random().toString(36).slice(2, 11);
+    }
+
+    // Set the user_id cookie if not already set
+    setUserIdCookie();
 
 
-
-document.addEventListener("DOMContentLoaded", function() {
     function initializeChatbot() {
         const userId = getCookie('user_id');
-        console.log("user_id: " + userId);
         if (userId) {
             const rootStyle = document.documentElement.style;
             rootStyle.setProperty('--main-color', chatbot_vars.main_color);
@@ -62,69 +72,69 @@ document.addEventListener("DOMContentLoaded", function() {
                 chatbox.scrollTo(0, chatbox.scrollHeight);
             };
 
-            const createAndSendParams = (message) => {
-                var params = new URLSearchParams();
-                params.append('action', 'process_chatbot_message');
-                params.append('message', message);
-                params.append('client_id', chatbot_vars.client_id);
-                params.append('openai_key', chatbot_vars.openai_key);
-                params.append('prompt', chatbot_vars.prompt);
-                return params;
-            };
-
-            function processFinalMessage(pElement) {
-                console.log("Final message before processing:", pElement.innerHTML);
-
-
-                // Transform markdown-style links to HTML hyperlinks
-                const markdownLinkRegex = /\[([^\]]+)\]\((http[^)]+)\)/g;
-                pElement.innerHTML = pElement.innerHTML.replace(markdownLinkRegex, "<a href='$2'>$1</a>");
-
-                // Transform plain text URLs into clickable links
-                const urlRegex = /(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#/%=~_|$?!:,.*()[]]+)/ig;
-                pElement.innerHTML = pElement.innerHTML.replace(urlRegex, "<a href='$1'>$1</a>");
-                // Transform bold text
-                const boldRegex = /\*\*(.*?)\*\*/g;
-                pElement.innerHTML = pElement.innerHTML.replace(boldRegex, "<strong>$1</strong>");
-
-
-                console.log("Final message after processing:", pElement.innerHTML);
-            }
-
+            
             const handleErrorResponse = (chatElement) => {
-                const messageElement = chatElement.querySelector("p");
-                messageElement.classList.add("error");
-                messageElement.innerHTML = "Oooops! Something went wrong. Please try again.";
+                if (chatElement) {
+                    const messageElement = chatElement.querySelector(".error-message"); // Ensure this selector matches an element in your chatbox
+                    if (messageElement) {
+                        messageElement.classList.add("error");
+                        messageElement.innerHTML = "Oooops! Something went wrong. Please try again.";
+                    }
+                }
             };
+
 
             const generateResponse = (userMessage, userId) => {
-                const customId = chatbot_vars.custom_id; // Assuming this is how you get customId
+                const customId = chatbot_vars.custom_id;
                 const encodedMessage = encodeURIComponent(userMessage);
                 const serverURL = chatbot_vars.server_url;
-                console.log ("serverURL: " + serverURL, "customId: " + customId, "encodedMessage: " + encodedMessage, "userId: " + userId);
                 const url = `${serverURL}chat?custom_id=${customId}&message=${encodedMessage}&user_id=${userId}`;
-
+            
                 const eventSource = new EventSource(url);
-
+                let messageBuffer = '';
+                let previousChunkEndedWithPunctuation = false;
+            
                 eventSource.onmessage = function(event) {
-                    // Append each new message received from the server
-                    appendMessageToChatbox(event.data, "incoming", true);
+                    
+                    // Check if the current chunk starts with a letter and the previous chunk ended with punctuation
+                    if (previousChunkEndedWithPunctuation && /^[a-zA-Z]/.test(event.data)) {
+                        messageBuffer += ' ';
+                    }
+                    messageBuffer += event.data;
+            
+                    // Update the flag based on whether this chunk ends with punctuation
+                    previousChunkEndedWithPunctuation = /[.!?]$/.test(event.data);
+            
+                    if (messageBuffer.length >= 20) {
+                        const processedMessage = processMessage(messageBuffer);
+                        appendMessageToChatbox(processedMessage, "incoming", true);
+                        messageBuffer = ''; // Reset the buffer
+                        previousChunkEndedWithPunctuation = false;
+                    }
                 };
-
+            
                 eventSource.onerror = function(error) {
-                    console.error("EventSource failed:", error);
+                    if (messageBuffer.length > 0) {
+                        const remainingMessage = processMessage(messageBuffer);
+                        appendMessageToChatbox(remainingMessage, "incoming", true);
+                    }
                     eventSource.close();
-                    handleErrorResponse(); // Existing error handling function
+                    handleErrorResponse(chatbox);
                 };
             };
-
+            
+            function processMessage(message) {
+                // Regular expression to add a space after a period, exclamation mark, or question mark followed by a letter
+                return message.replace(/([.!?])([a-zA-Z])/g, "$1 $2");
+            }
             
 
+
+           
             const handleChat = () => {
                 const userMessage = chatInput.value.trim();
                 if (!userMessage) return;
                 const userId = getCookie('user_id');
-                console.log("user_id: " + userId);
                 chatInput.value = "";
                 chatInput.style.height = `${inputInitHeight}px`;
             
