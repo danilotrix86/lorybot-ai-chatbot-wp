@@ -9,9 +9,6 @@ function lorybot_enqueue_scripts() {
     // Enqueue the chatbot's JavaScript, dependent on jQuery
     wp_enqueue_script('lorybot-script', plugin_dir_url(__FILE__) . '../assets/js/script.js', array('jquery'), '1.0', true);
 
-    // Enqueue Showdown.js from CDN
-    wp_enqueue_script('showdown-script', 'https://cdn.jsdelivr.net/npm/showdown@2.1.0/dist/showdown.min.js', array(), '2.1.0', true);
-
 
     // Enqueue Google Material Symbols fonts
     wp_enqueue_style('material-symbols-outlined', 'https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@48,400,0,0');

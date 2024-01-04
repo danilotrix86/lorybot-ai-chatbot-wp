@@ -118,12 +118,8 @@ document.addEventListener("DOMContentLoaded", function() {
                 const url = `${serverURL}chat?custom_id=${customId}&message=${encodedMessage}&user_id=${userId}`;
             
                 const eventSource = new EventSource(url);
-                const converter = new showdown.Converter();
-                let messageBuffer = '';
-
-
+                
                 eventSource.onmessage = function(event) {
-                    console.log("Received chunk", event.data);
                     const htmlContent = processChunk(event.data);
                     appendMessageToChatbox(htmlContent, "incoming", true);
                     htmlBuffer = ''; // Clear the buffer after appending to the chatbox
@@ -140,10 +136,15 @@ document.addEventListener("DOMContentLoaded", function() {
             let htmlBuffer = '';
             let markdownBuffer = '';
             let isBold = false;
+            let isLinkText = false;
+            let isLinkUrl = false;
+            let linkText = '';
+            let linkUrl = '';
 
             function processChunk(chunk) {
                 for (let i = 0; i < chunk.length; i++) {
-                    markdownBuffer += chunk[i];
+                    const char = chunk[i];
+                    markdownBuffer += char;
 
                     // Check for bold markdown syntax '**'
                     if (markdownBuffer.endsWith('**')) {
@@ -153,25 +154,49 @@ document.addEventListener("DOMContentLoaded", function() {
                             markdownBuffer = '';
                             isBold = false;
                         } else {
-                            // Opening bold tag, flush previous text
+                            // Opening bold tag
                             htmlBuffer += markdownBuffer.slice(0, -2);
                             markdownBuffer = '';
                             isBold = true;
                         }
                     }
+
+                    // Handle start of link text
+                    if (char === '[') {
+                        isLinkText = true;
+                        markdownBuffer = '';
+                    }
+
+                    // Handle end of link text and start of URL
+                    if (markdownBuffer.endsWith('](')) {
+                        isLinkText = false;
+                        isLinkUrl = true;
+                        linkText = markdownBuffer.slice(0, -2);
+                        markdownBuffer = '';
+                    }
+
+                    // Handle end of URL
+                    if (char === ')' && isLinkUrl) {
+                        isLinkUrl = false;
+                        linkUrl = markdownBuffer.slice(0, -1);
+                        // Add 'http://' if no protocol specified
+                        if (!linkUrl.match(/^https?:\/\//)) {
+                            linkUrl = 'http://' + linkUrl;
+                        }
+                        htmlBuffer += ` <a href="${linkUrl}">${linkText}</a>`;
+                        markdownBuffer = '';
+                        linkText = '';
+                        linkUrl = '';
+                    }
                 }
 
-                // If bold is ongoing, don't close it yet
-                if (isBold) {
-                    return htmlBuffer; // Return the HTML content so far
+                if (!isBold && !isLinkText && !isLinkUrl) {
+                    htmlBuffer += markdownBuffer;
+                    markdownBuffer = '';
                 }
 
-                // Flush remaining markdownBuffer if not in a bold state
-                htmlBuffer += markdownBuffer;
-                markdownBuffer = '';
                 return htmlBuffer;
             }
-
            
             const handleChat = () => {
                 const userMessage = chatInput.value.trim();
