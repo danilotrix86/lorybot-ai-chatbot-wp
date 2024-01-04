@@ -26,6 +26,30 @@ document.addEventListener("DOMContentLoaded", function() {
     // Set the user_id cookie if not already set
     setUserIdCookie();
 
+    function sendWarmupRequest() {
+        const userId = getCookie('user_id');
+        if (userId) {
+            const customId = chatbot_vars.custom_id; // Ensure chatbot_vars.custom_id is defined
+            const serverURL = chatbot_vars.server_url; // Ensure serverURL is defined
+            const url = serverURL + "warmup/";
+            const data = { custom_id: customId };
+    
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'LORYBOT-API-KEY': customId // Adding custom_id to the request headers
+                },
+                body: JSON.stringify(data),
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Warmup request successful:', data);
+                return data; // Make sure to return data or some response
+            });
+        }
+    }
+
 
     function initializeChatbot() {
         const userId = getCookie('user_id');
@@ -84,6 +108,9 @@ document.addEventListener("DOMContentLoaded", function() {
             };
 
 
+           
+
+
             const generateResponse = (userMessage, userId) => {
                 const customId = chatbot_vars.custom_id;
                 const encodedMessage = encodeURIComponent(userMessage);
@@ -91,44 +118,59 @@ document.addEventListener("DOMContentLoaded", function() {
                 const url = `${serverURL}chat?custom_id=${customId}&message=${encodedMessage}&user_id=${userId}`;
             
                 const eventSource = new EventSource(url);
+                const converter = new showdown.Converter();
                 let messageBuffer = '';
-                let previousChunkEndedWithPunctuation = false;
-            
+
+
                 eventSource.onmessage = function(event) {
-                    
-                    // Check if the current chunk starts with a letter and the previous chunk ended with punctuation
-                    if (previousChunkEndedWithPunctuation && /^[a-zA-Z]/.test(event.data)) {
-                        messageBuffer += ' ';
-                    }
-                    messageBuffer += event.data;
-            
-                    // Update the flag based on whether this chunk ends with punctuation
-                    previousChunkEndedWithPunctuation = /[.!?]$/.test(event.data);
-            
-                    if (messageBuffer.length >= 20) {
-                        const processedMessage = processMessage(messageBuffer);
-                        appendMessageToChatbox(processedMessage, "incoming", true);
-                        messageBuffer = ''; // Reset the buffer
-                        previousChunkEndedWithPunctuation = false;
-                    }
+                    console.log("Received chunk", event.data);
+                    const htmlContent = processChunk(event.data);
+                    appendMessageToChatbox(htmlContent, "incoming", true);
+                    htmlBuffer = ''; // Clear the buffer after appending to the chatbox
                 };
+                
             
                 eventSource.onerror = function(error) {
-                    if (messageBuffer.length > 0) {
-                        const remainingMessage = processMessage(messageBuffer);
-                        appendMessageToChatbox(remainingMessage, "incoming", true);
-                    }
                     eventSource.close();
                     handleErrorResponse(chatbox);
                 };
             };
             
-            function processMessage(message) {
-                // Regular expression to add a space after a period, exclamation mark, or question mark followed by a letter
-                return message.replace(/([.!?])([a-zA-Z])/g, "$1 $2");
-            }
             
+            let htmlBuffer = '';
+            let markdownBuffer = '';
+            let isBold = false;
 
+            function processChunk(chunk) {
+                for (let i = 0; i < chunk.length; i++) {
+                    markdownBuffer += chunk[i];
+
+                    // Check for bold markdown syntax '**'
+                    if (markdownBuffer.endsWith('**')) {
+                        if (isBold) {
+                            // Closing bold tag
+                            htmlBuffer += '<strong>' + markdownBuffer.slice(0, -2) + '</strong>';
+                            markdownBuffer = '';
+                            isBold = false;
+                        } else {
+                            // Opening bold tag, flush previous text
+                            htmlBuffer += markdownBuffer.slice(0, -2);
+                            markdownBuffer = '';
+                            isBold = true;
+                        }
+                    }
+                }
+
+                // If bold is ongoing, don't close it yet
+                if (isBold) {
+                    return htmlBuffer; // Return the HTML content so far
+                }
+
+                // Flush remaining markdownBuffer if not in a bold state
+                htmlBuffer += markdownBuffer;
+                markdownBuffer = '';
+                return htmlBuffer;
+            }
 
            
             const handleChat = () => {
@@ -152,16 +194,22 @@ document.addEventListener("DOMContentLoaded", function() {
             chatInput.addEventListener("input", adjustTextareaHeight);
 
             chatInput.addEventListener("keydown", (e) => {
-                if (e.key === "Enter" && !e.shiftKey && window.innerWidth > 800) {
+                if (e.key === "Enter" && !e.shiftKey) {
                     e.preventDefault();
                     handleChat();
+                } else if (e.key === "Enter" && e.shiftKey) {
+                    // Allow Shift+Enter to insert a newline in the textarea
                 }
             });
 
             sendChatBtn.addEventListener("click", handleChat);
             closeBtn.addEventListener("click", () => document.body.classList.remove("show-chatbot"));
-            chatbotToggler.addEventListener("click", () => document.body.classList.toggle("show-chatbot"));
-        } else {
+            
+            chatbotToggler.addEventListener("click", () => {
+                console.log("Toggler clicked"); // For debugging
+                document.body.classList.toggle("show-chatbot");
+                sendWarmupRequest();
+            });        } else {
             setTimeout(initializeChatbot, 100); // Retry after 100 milliseconds
         }
     }

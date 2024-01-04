@@ -3,6 +3,7 @@
 // Function when the plugin is activated
 function lorybot_deactivate() {
 
+    error_log("lorybot_deactivate");
 
     $lorybot_server_url = get_option('lorybot_server_url');
     $options = get_option('lorybot_options');
@@ -24,6 +25,9 @@ function lorybot_deactivate() {
         'timeout'   => 60,
     );
 
+    error_log("Clearing existing options");
+    delete_option('lorybot_options');
+
     $response = wp_remote_post($lorybot_server_url . "deactivate", $args);
 
     // Check if the option already exists
@@ -39,11 +43,10 @@ function lorybot_deactivate() {
         echo 'POST request sent successfully!';
     }
 
-    delete_option('lorybot_options');
+    
 
 }
 
-// Deactivation hook
-register_deactivation_hook(__FILE__, 'lorybot_deactivate');
+
 
 ?>
