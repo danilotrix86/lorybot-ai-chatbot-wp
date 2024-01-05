@@ -1,14 +1,31 @@
 <?php
+/**
+ * This script contains callback functions for the LoryBot plugin's settings.
+ * Each function corresponds to a specific setting, handling its display and behavior in the settings page.
+ */
 
+/**
+ * Callback for displaying the section description.
+ */
 function lorybot_section_callback() {
     echo '<p>Main settings for Lorybot.</p>';
 }
 
+/**
+ * Retrieves a specific LoryBot option with an optional default value.
+ *
+ * @param string $option_name The name of the option to retrieve.
+ * @param string $default The default value to return if the option is not set.
+ * @return mixed The value of the option or the default value.
+ */
 function get_lorybot_option($option_name, $default = '') {
     $options = get_option('lorybot_options');
-    return isset($options[$option_name]) ? $options[$option_name] : $default;
+    return $options[$option_name] ?? $default;
 }
 
+/**
+ * Callback for displaying the chat enabled checkbox.
+ */
 function lorybot_enable_callback() {
     $chat_enabled = get_lorybot_option('chat_enabled');
     ?>
@@ -16,20 +33,25 @@ function lorybot_enable_callback() {
     <?php
 }
 
-
+/**
+ * Callback for displaying the custom ID text field.
+ */
 function lorybot_custom_id_callback() {
-    $options = get_option('lorybot_options');
-    $custom_id = isset($options['custom_id']) ? $options['custom_id'] : ''; 
+    $custom_id = get_lorybot_option('custom_id');
     echo '<input value="' . esc_attr($custom_id) . '" type="text" name="lorybot_options[custom_id]" id="lorybot_custom_id_field" readonly>';
 }
 
-
-
+/**
+ * Callback for displaying the prompt textarea.
+ */
 function lorybot_prompt_callback() {
     $prompt = get_lorybot_option('prompt');
     echo '<textarea id="prompt_editor_id" name="lorybot_options[prompt]" rows="5" cols="60">' . esc_textarea($prompt) . '</textarea>';
 }
 
+/**
+ * Callback for displaying the embedding editor.
+ */
 function lorybot_embedding_callback() {
     $embedding = get_lorybot_option('embedding');
     wp_editor($embedding, 'embedding_editor_id', [
@@ -41,11 +63,12 @@ function lorybot_embedding_callback() {
     ]);
 }
 
+/**
+ * Callback for displaying the chat display textarea.
+ * It loads the default HTML from a file if the setting is not set.
+ */
 function lorybot_chat_display_callback() {
-    // Get the absolute path to the chat-html.php file
     $chat_html_path = plugin_dir_path(__FILE__) . 'chat-html.php';
-
-    // Use file_get_contents with the absolute path
     $chat_display = get_lorybot_option('chat_display', file_get_contents($chat_html_path));
 
     ?>
@@ -53,7 +76,11 @@ function lorybot_chat_display_callback() {
     <?php
 }
 
-
+/**
+ * Callback for displaying a color picker.
+ *
+ * @param string $option_name The name of the color option to display.
+ */
 function lorybot_color_picker_callback($option_name) {
     $color_value = get_lorybot_option($option_name);
     ?>
@@ -62,6 +89,9 @@ function lorybot_color_picker_callback($option_name) {
     lorybot_color_picker_script();
 }
 
+/**
+ * Adds the color picker script once per page load.
+ */
 function lorybot_color_picker_script() {
     static $script_added = false;
     if (!$script_added) {
@@ -76,14 +106,10 @@ function lorybot_color_picker_script() {
     }
 }
 
-function lorybot_main_color_callback() {
-    lorybot_color_picker_callback('main_color');
-}
-
-function lorybot_background_color_callback() {
-    lorybot_color_picker_callback('background_color');
-}
-
-function lorybot_title_color_callback() {
-    lorybot_color_picker_callback('title_color');
-}
+/**
+ * Callbacks for color settings.
+ */
+function lorybot_main_color_callback() { lorybot_color_picker_callback('main_color'); }
+function lorybot_background_color_callback() { lorybot_color_picker_callback('background_color'); }
+function lorybot_title_color_callback() { lorybot_color_picker_callback('title_color'); }
+?>

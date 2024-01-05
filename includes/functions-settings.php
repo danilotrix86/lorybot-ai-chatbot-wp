@@ -1,37 +1,50 @@
 <?php
 
-
 include_once 'settings/callbacks.php';
 include_once 'settings/sanitaze.php';
 
+/**
+ * Registers the settings page for LoryBot.
+ */
 function lorybot_register_settings_page() {
-    
     error_log('lorybot_register_settings_page');
     add_options_page('LoryBot Settings', 'LoryBot Settings', 'manage_options', 'lorybot-settings', 'lorybot_settings_page_content');
 }
 add_action('admin_menu', 'lorybot_register_settings_page');
 
+/**
+ * Initializes LoryBot settings by registering them and adding settings sections and fields.
+ */
 function lorybot_settings_init() {
-    
     error_log('lorybot_settings_init');
     register_setting('lorybot_settings', 'lorybot_options', 'lorybot_sanitize_options');
     add_settings_section('lorybot_main_section', 'Main Settings', 'lorybot_section_callback', 'lorybot-settings');
+    
+    // Register fields
     include_once 'settings/fields.php';
 }
 add_action('admin_init', 'lorybot_settings_init');
 
-
+/**
+ * Outputs the content of the settings page.
+ */
 function lorybot_settings_page_content() {
-    
-    error_log('lorybot_settings_page_content');
+    // Correctly retrieve the plugin directory URL and concatenate it with the relative path to the logo
+    $logo_url = plugin_dir_url(__FILE__) . '../assets/images/lorybot-logo.png';
     ?>
-    <div class="wrap">
-        <h1>Chatbot Settings</h1>
-        <?php settings_errors(); ?> <!-- Display settings errors here -->
+    <div class="wrap lorybot-settings-wrap">
+        <!-- Embed the logo using PHP echo for the URL -->
+        <img src="<?php echo esc_url($logo_url); ?>" alt="LoryBot Logo" class="lorybot-logo">
+
+        <h1>LoryBot Settings</h1>
+        <!-- Settings form -->
         <form action="options.php" method="post">
             <?php
+            // Output nonce, action, and option_page fields for a settings page
             settings_fields('lorybot_settings');
+            // Output settings sections and their fields
             do_settings_sections('lorybot-settings');
+            // Output save settings button
             submit_button('Save Settings');
             ?>
         </form>
@@ -40,35 +53,57 @@ function lorybot_settings_page_content() {
 }
 
 
+/**
+ * Handles the after-update logic for LoryBot settings.
+ *
+ * @param array $updated_values The new values updated in the settings.
+ * @return bool True if the update was successful, false otherwise.
+ */
 function lorybot_function_after_update($updated_values) {
-    
     error_log('lorybot_function_after_update');
     
     $options = get_option('lorybot_options');
-    $custom_id = isset($options['custom_id']) ? $options['custom_id'] : ''; 
+    $custom_id = $options['custom_id'] ?? '';
 
-    // Check if custom_id is empty
     if (empty($custom_id)) {
-        // If custom_id is empty, delete all settings
         delete_option('lorybot_options');
         error_log('Deleted all Lorybot settings due to empty custom_id');
-        return false; // Return false to indicate settings were not updated
+        return false;
     }
 
     error_log('Update Settings custom_id: ' . $custom_id);
+    $json = build_update_json($updated_values, $custom_id);
+    return send_update_request($json);
+}
 
-    $json = [
-        'embedding' => $updated_values['embedding'] ?? '',
-        'prompt' => $updated_values['prompt'] ?? '',
+/**
+ * Builds the JSON payload for the update request.
+ *
+ * @param array $values The new values to be updated.
+ * @param string $custom_id The custom ID.
+ * @return array The JSON payload.
+ */
+function build_update_json($values, $custom_id) {
+    return [
+        'embedding' => $values['embedding'] ?? '',
+        'prompt' => $values['prompt'] ?? '',
         'custom_id' => $custom_id,
     ];
+}
 
+/**
+ * Sends an update request to the server.
+ *
+ * @param array $json The JSON payload for the update.
+ * @return bool True if the request was successful, false otherwise.
+ */
+function send_update_request($json) {
     $lorybot_server_url = get_option('lorybot_server_url');
     $response = wp_remote_post($lorybot_server_url . "settings", [
         'method'    => 'POST',
         'headers'   => [
             'Content-Type' => 'application/json',
-            'LORYBOT-API-KEY' => $custom_id, // Add API key to the request header
+            'LORYBOT-API-KEY' => $json['custom_id'],
         ],
         'body'      => json_encode($json),
         'sslverify' => false,
@@ -78,94 +113,40 @@ function lorybot_function_after_update($updated_values) {
     if (is_wp_error($response)) {
         error_log("WP_Error when updating settings: " . $response->get_error_message());
         return false;
-    } else {
-        $response_code = wp_remote_retrieve_response_code($response);
-        $response_body = wp_remote_retrieve_body($response);
-        error_log("Received response code: " . $response_code . " - Body: " . $response_body);
-
-        if ($response_code == 401) {
-            error_log("Unauthorized access. API Key missing or incorrect.");
-            return false; // Indicate failure due to unauthorized access
-        }
-        
-        return ($response_code == 200); // Return true if response code is 200
     }
+
+    $response_code = wp_remote_retrieve_response_code($response);
+    $response_body = wp_remote_retrieve_body($response);
+    error_log("Received response code: " . $response_code . " - Body: " . $response_body);
+
+    return $response_code == 200;
 }
 
-
-/*
-function lorybot_function_after_update($updated_values) {
-    error_log('lorybot_function_after_update');
-    $options = get_option('lorybot_options');
-    $custom_id = isset($options['custom_id']) ? $options['custom_id'] : ''; 
-
-    error_log('Update Settings custom_id: ' . $custom_id);
-
-    $json = [
-        'embedding' => $updated_values['embedding'] ?? '',
-        'prompt' => $updated_values['prompt'] ?? '',
-        'custom_id' => $custom_id,
-    ];
-
-    $lorybot_server_url = get_option('lorybot_server_url');
-    $response = wp_remote_post($lorybot_server_url . "settings", [
-        'method'    => 'POST',
-        'headers'   => [
-            'Content-Type' => 'application/json',
-            'LORYBOT-API-KEY' => $custom_id, // Add API key to the request header
-        ],
-        'body'      => json_encode($json),
-        'sslverify' => false,
-        'timeout'   => 60
-    ]);
-    
-
-    if (is_wp_error($response)) {
-        error_log("WP_Error when updating settings: " . $response->get_error_message());
-        return false;
-    } else {
-        $response_code = wp_remote_retrieve_response_code($response);
-        $response_body = wp_remote_retrieve_body($response);
-        error_log("Received response code: " . $response_code . 
-                  " - Body: " . $response_body);
-
-        if ($response_code == 401) {
-            error_log("Unauthorized access. API Key missing or incorrect.");
-            return false; // Indicate failure due to unauthorized access
-        }
-        
-        return ($response_code == 200); // Return true if response code is 200
-    }
-}
-*/
-
+/**
+ * Callback function for the 'updated_option' action.
+ * It triggers after an option update and handles custom logic for LoryBot settings.
+ *
+ * @param string $option_name Name of the updated option.
+ * @param mixed $old_value The old option value.
+ * @param mixed $value The new option value.
+ */
 function lorybot_option_updated($option_name, $old_value, $value) {
-
     error_log('lorybot_option_updated called for option: ' . $option_name);
-
-    // Skip if activation or deactivation is in progress
-    if (isset($GLOBALS['is_lorybot_activating']) && $GLOBALS['is_lorybot_activating']) {
-        error_log('Skipping lorybot_option_updated during activation/deactivation');
-        return;
-    }
 
     if ($option_name === 'lorybot_options') {
         $update_success = lorybot_function_after_update($value);
 
         if (!$update_success) {
-            // Add an error message to be displayed
             add_settings_error(
                 'lorybot_options',
                 'lorybot_update_failed',
                 'There was an error updating the settings.',
                 'error'
             );
-
-            // Reset the option to its old value to prevent saving the new settings
             update_option('lorybot_options', $old_value);
-
-            // Optionally, you might want to redirect back to the settings page
         }
     }
 }
 add_action('updated_option', 'lorybot_option_updated', 10, 3);
+
+?>
