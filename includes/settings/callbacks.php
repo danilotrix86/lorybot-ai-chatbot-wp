@@ -8,7 +8,7 @@
  * Callback for displaying the section description.
  */
 function lorybot_section_callback() {
-    echo '<p>Main settings for Lorybot.</p>';
+    echo '<p class="setting-p">You can tailor the behavior of the LoryBot AI engine and the style of the chatbot to suit your preferences here.</p>';
 }
 
 /**
@@ -23,13 +23,19 @@ function get_lorybot_option($option_name, $default = '') {
     return $options[$option_name] ?? $default;
 }
 
+
+
 /**
  * Callback for displaying the chat enabled checkbox.
  */
 function lorybot_enable_callback() {
     $chat_enabled = get_lorybot_option('chat_enabled');
     ?>
-    <input type="checkbox" name="lorybot_options[chat_enabled]" id="lorybot_enabled_field" <?php checked($chat_enabled, 'on'); ?>>
+    <label class="custom-checkbox">
+        <input type="checkbox" name="lorybot_options[chat_enabled]" id="lorybot_enabled_field" <?php checked($chat_enabled, 'on'); ?>>
+        <span class="checkmark"></span>
+    </label>
+    <span class="help-tip-text">Enable this option to display the chatbot on your website.</span>
     <?php
 }
 
@@ -38,30 +44,73 @@ function lorybot_enable_callback() {
  */
 function lorybot_custom_id_callback() {
     $custom_id = get_lorybot_option('custom_id');
-    echo '<input value="' . esc_attr($custom_id) . '" type="text" name="lorybot_options[custom_id]" id="lorybot_custom_id_field" readonly>';
+    ?>
+    <div class="lorybot-field-wrap">
+        <input value="<?php echo esc_attr($custom_id); ?>" type="text" name="lorybot_options[custom_id]" id="lorybot_custom_id_field" class="lorybot-input">
+        <span class="help-tip-text">Please handle this API key with care. It is essential for the proper functioning of the application.</span>
+    </div>
+    <?php
 }
+
+
 
 /**
  * Callback for displaying the prompt textarea.
  */
 function lorybot_prompt_callback() {
     $prompt = get_lorybot_option('prompt');
-    echo '<textarea id="prompt_editor_id" name="lorybot_options[prompt]" rows="5" cols="60">' . esc_textarea($prompt) . '</textarea>';
+    ?>
+    <div class="lorybot-field-wrap">
+        <textarea id="lorybot_prompt_field" name="lorybot_options[prompt]" class="lorybot-textarea"><?php echo esc_textarea($prompt); ?></textarea>
+        <span class="help-tip-text">
+            This section allows you to customize the behavior and responses of the LoryBot AI. You have the opportunity to shape the AI's tone, style of conversation, and the specific guidelines it follows when interacting with users.
+            <br /><br />
+            <strong>Considerations for Customization:</strong>
+            <ul>
+                <li><strong>Tone and Style:</strong> Decide on the tone (professional, friendly, casual, etc.) and conversation style (formal, conversational, etc.) that best fits your brand and audience. This sets the overall character of your AI's interactions.</li>
+                <li><strong>Specific Guidelines:</strong> Define rules or guidelines for the AI. This can include the use of specific phrases, keywords, or the type of information it should prioritize in responses.</li>
+                <li><strong>Resource Links:</strong> Incorporate links to useful resources such as FAQs, product pages, or support articles within the AI's responses. This can provide users with direct access to more detailed information.</li>
+                <li><strong>Example Prompts:</strong> Create prompts that exemplify how you want the AI to interact. For example:<br />
+                    <code>
+                        'You are an AI assistant specialized in customer support for tech products. <br />
+                        Your responses should be friendly, clear, and informative. When users ask questions, provide concise and helpful answers. <br />
+                        Include a link to our FAQ page for more detailed information. <br />
+                        If asked about product features, highlight our product's unique aspects positively and engagingly.'
+                    </code>
+                </li>
+            </ul>
+            The way you configure these prompts directly influences how effectively the AI can serve and engage with your users. A well-configured AI can significantly enhance user experience and satisfaction.
+        </span>
+    </div>
+    <?php
 }
 
 /**
- * Callback for displaying the embedding editor.
+ * Callback for displaying the Information Source textarea.
  */
 function lorybot_embedding_callback() {
     $embedding = get_lorybot_option('embedding');
-    wp_editor($embedding, 'embedding_editor_id', [
-        'textarea_name' => 'lorybot_options[embedding]',
-        'media_buttons' => false,
-        'textarea_rows' => 20,
-        'tinymce' => true,
-        'quicktags' => true
-    ]);
+    ?>
+    <div class="lorybot-field-wrap">
+    <textarea id="embedding_editor_id" name="lorybot_options[embedding]" class="lorybot-textarea"><?php echo esc_textarea($embedding); ?></textarea>
+    <span class="help-tip-text">
+        This section is for entering the foundational information and knowledge base that the AI will use to understand and respond to user inquiries. It's essential for shaping how the AI interacts with users and the quality of its responses.
+        <br /><br />
+        <strong>Key Points to Consider:</strong>
+        <ul>
+            <li><strong>Content Relevance:</strong> Include detailed and relevant information about your services, products, or specific topics that are crucial for your business. The AI will use this to provide accurate and context-specific responses.</li>
+            <li><strong>Data Accuracy:</strong> Ensure that the information provided is accurate and up-to-date. Accurate data is vital for the AI to deliver reliable and trustworthy responses.</li>
+            <li><strong>Structure and Clarity:</strong> Organize the information logically and clearly. Well-structured content helps the AI to process and utilize it effectively.</li>
+            <li><strong>Examples and Scenarios:</strong> Consider including examples or common scenarios that your users might encounter. This helps the AI to better understand user needs and respond appropriately.</li>
+            <li><strong>Continuous Updates:</strong> Regularly update this knowledge base to reflect any changes in your services or products. An up-to-date AI is more effective in assisting users.</li>
+        </ul>
+        The more comprehensive and detailed the information provided, the more effectively the AI can assist users. Think of this as teaching the AI about your business so it can serve your users better.
+    </span>
+    </div>
+    <?php
 }
+
+
 
 /**
  * Callback for displaying the chat display textarea.
@@ -72,22 +121,24 @@ function lorybot_chat_display_callback() {
     $chat_display = get_lorybot_option('chat_display', file_get_contents($chat_html_path));
 
     ?>
-    <textarea name="lorybot_options[chat_display]" id="lorybot_chat_display_field" rows="10" cols="50"><?php echo esc_textarea($chat_display); ?></textarea>
+    <div class="lorybot-field-wrap">
+        <textarea id="lorybot_chat_display_field" name="lorybot_options[chat_display]" class="lorybot-textarea chat-display"><?php echo esc_textarea($chat_display); ?></textarea>
+        <span class="help-tip-text">
+            Use this section to customize the HTML that renders your chat interface on the website. 
+            <br /><br />
+            <strong>Guidelines:</strong>
+            <ol>
+                <li><strong>HTML Structure:</strong> Ensure the HTML is valid and well-formatted. This is crucial for the chat interface to function correctly.</li>
+                <li><strong>Styling:</strong> You can include CSS styles directly in the HTML or link to external stylesheets to enhance the appearance of the chat interface.</li>
+                <li><strong>Customizing the Header:</strong> Replace <code>&lt;h2&gt;Chatbot&lt;/h2&gt;</code> with your desired chatbot name.</li>
+                <li><strong>Customizing the Welcome Message:</strong> Edit the content within <code>&lt;p&gt;Hi there 👋&lt;br&gt;How can I help you today?&lt;/p&gt;</code> to change the initial message displayed when the chatbot loads.</li>
+            </ol>
+            <strong>Note:</strong> Be cautious when editing HTML directly. Incorrect code can impact the functionality and display of the chat interface.
+        </span>
+    </div>
     <?php
 }
 
-/**
- * Callback for displaying a color picker.
- *
- * @param string $option_name The name of the color option to display.
- */
-function lorybot_color_picker_callback($option_name) {
-    $color_value = get_lorybot_option($option_name);
-    ?>
-    <input class="lorybot-color-picker" type="text" name="lorybot_options[<?php echo $option_name; ?>]" value="<?php echo esc_attr($color_value); ?>">
-    <?php
-    lorybot_color_picker_script();
-}
 
 /**
  * Adds the color picker script once per page load.
@@ -107,9 +158,35 @@ function lorybot_color_picker_script() {
 }
 
 /**
+ * Callback for displaying a color picker.
+ *
+ * @param string $option_name The name of the color option to display.
+ * @param string $default_color The default color value to use if the option is not set.
+ */
+function lorybot_color_picker_callback($option_name, $default_color) {
+    $color_value = get_lorybot_option($option_name);
+    if (empty($color_value)) {
+        $color_value = $default_color;
+    }
+    ?>
+    <input class="lorybot-color-picker" type="text" name="lorybot_options[<?php echo $option_name; ?>]" value="<?php echo esc_attr($color_value); ?>">
+    <?php
+    lorybot_color_picker_script();
+}
+
+/**
  * Callbacks for color settings.
  */
-function lorybot_main_color_callback() { lorybot_color_picker_callback('main_color'); }
-function lorybot_background_color_callback() { lorybot_color_picker_callback('background_color'); }
-function lorybot_title_color_callback() { lorybot_color_picker_callback('title_color'); }
+function lorybot_main_color_callback() {
+    lorybot_color_picker_callback('main_color', '#0e456c');
+}
+
+function lorybot_background_color_callback() {
+    lorybot_color_picker_callback('background_color', '#ffffff');
+}
+
+function lorybot_title_color_callback() {
+    lorybot_color_picker_callback('title_color', '#ffffff');
+}
+
 ?>

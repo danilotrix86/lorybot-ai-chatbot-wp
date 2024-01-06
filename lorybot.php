@@ -23,8 +23,8 @@ require_once $plugin_dir . 'includes/functions-chat-display.php';
 require_once $plugin_dir . 'routes/activate.php';
 require_once $plugin_dir . 'routes/deactivate.php';
 
-register_activation_hook(__FILE__, 'lorybot_activate');
-register_deactivation_hook(__FILE__, 'lorybot_deactivate');
+register_activation_hook(__FILE__, 'Lorybot\Activate\lorybot_activate');
+register_deactivation_hook(__FILE__, 'Lorybot\Deactivate\lorybot_deactivate');
 
 function initialize_server_url() {
     // Set the server URL as an option

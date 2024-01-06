@@ -7,7 +7,6 @@ include_once 'settings/sanitaze.php';
  * Registers the settings page for LoryBot.
  */
 function lorybot_register_settings_page() {
-    error_log('lorybot_register_settings_page');
     add_options_page('LoryBot Settings', 'LoryBot Settings', 'manage_options', 'lorybot-settings', 'lorybot_settings_page_content');
 }
 add_action('admin_menu', 'lorybot_register_settings_page');
@@ -16,7 +15,6 @@ add_action('admin_menu', 'lorybot_register_settings_page');
  * Initializes LoryBot settings by registering them and adding settings sections and fields.
  */
 function lorybot_settings_init() {
-    error_log('lorybot_settings_init');
     register_setting('lorybot_settings', 'lorybot_options', 'lorybot_sanitize_options');
     add_settings_section('lorybot_main_section', 'Main Settings', 'lorybot_section_callback', 'lorybot-settings');
     
@@ -24,6 +22,7 @@ function lorybot_settings_init() {
     include_once 'settings/fields.php';
 }
 add_action('admin_init', 'lorybot_settings_init');
+
 
 /**
  * Outputs the content of the settings page.
@@ -59,19 +58,15 @@ function lorybot_settings_page_content() {
  * @param array $updated_values The new values updated in the settings.
  * @return bool True if the update was successful, false otherwise.
  */
-function lorybot_function_after_update($updated_values) {
-    error_log('lorybot_function_after_update');
-    
+function lorybot_function_after_update($updated_values) {    
     $options = get_option('lorybot_options');
     $custom_id = $options['custom_id'] ?? '';
 
     if (empty($custom_id)) {
         delete_option('lorybot_options');
-        error_log('Deleted all Lorybot settings due to empty custom_id');
         return false;
     }
 
-    error_log('Update Settings custom_id: ' . $custom_id);
     $json = build_update_json($updated_values, $custom_id);
     return send_update_request($json);
 }
@@ -111,13 +106,11 @@ function send_update_request($json) {
     ]);
 
     if (is_wp_error($response)) {
-        error_log("WP_Error when updating settings: " . $response->get_error_message());
         return false;
     }
 
     $response_code = wp_remote_retrieve_response_code($response);
     $response_body = wp_remote_retrieve_body($response);
-    error_log("Received response code: " . $response_code . " - Body: " . $response_body);
 
     return $response_code == 200;
 }
@@ -131,7 +124,6 @@ function send_update_request($json) {
  * @param mixed $value The new option value.
  */
 function lorybot_option_updated($option_name, $old_value, $value) {
-    error_log('lorybot_option_updated called for option: ' . $option_name);
 
     if ($option_name === 'lorybot_options') {
         $update_success = lorybot_function_after_update($value);

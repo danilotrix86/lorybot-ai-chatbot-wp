@@ -1,52 +1,52 @@
 <?php
 
-// Function when the plugin is activated
+namespace Lorybot\Deactivate;
+
+/**
+ * Function to be executed when the plugin is deactivated.
+ */
 function lorybot_deactivate() {
-
-    error_log("lorybot_deactivate");
-
     $lorybot_server_url = get_option('lorybot_server_url');
     $options = get_option('lorybot_options');
-    $custom_id = isset($options['custom_id']) ? $options['custom_id'] : ''; 
-   
+    $custom_id = isset($options['custom_id']) ? $options['custom_id'] : '';
+
+    // Prepare data for the HTTP POST request
     $json = [
-        'domain' => getMainDomain(),
+        'domain'    => getMainDomain(),
         'custom_id' => $custom_id,
     ];
 
-    $args = array(
+    // HTTP request arguments
+    $args = [
         'method'    => 'POST',
         'headers'   => [
-            'Content-Type' => 'application/json',
-            'LORYBOT-API-KEY' => $custom_id, // Add API key to the request header
+            'Content-Type'      => 'application/json',
+            'LORYBOT-API-KEY'   => $custom_id, // Include the API key in the request header
         ],
         'body'      => json_encode($json),
         'sslverify' => false,
         'timeout'   => 60,
-    );
+    ];
 
-    error_log("Clearing existing options");
+    // Remove the lorybot_options as the plugin is being deactivated
     delete_option('lorybot_options');
 
+    // Send POST request and handle the response
     $response = wp_remote_post($lorybot_server_url . "deactivate", $args);
+    handleResponse($response);
+}
 
-    // Check if the option already exists
-    if (false === get_option('lorybot_options')) {
-        // Option does not exist, so add the default value
-        add_option('lorybot_options', array());
-    }
-
-
+/**
+ * Handles the response from the HTTP request.
+ *
+ * @param WP_Error|array $response The response or WP_Error on failure.
+ */
+function handleResponse($response) {
     if (is_wp_error($response)) {
         echo "Something went wrong: " . $response->get_error_message();
     } else {
         echo 'POST request sent successfully!';
     }
-
-    
-
 }
-
-
 
 ?>

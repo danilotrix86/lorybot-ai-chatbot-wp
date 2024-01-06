@@ -19,5 +19,4 @@
   }
 }
 
-
 add_action('wp_footer', 'lorybot_display');
