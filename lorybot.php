@@ -28,6 +28,5 @@ register_deactivation_hook(__FILE__, 'Lorybot\Deactivate\lorybot_deactivate');
 
 function initialize_server_url() {
     // Set the server URL as an option
-    update_option('lorybot_server_url', 'http://127.0.0.1:8002/');
-    #update_option('lorybot_server_url', 'https://lorybot-q4yzxnb64q-uc.a.run.app/');
+    update_option('lorybot_server_url', 'https://lorybot-q4yzxnb64q-uc.a.run.app/');
 }
