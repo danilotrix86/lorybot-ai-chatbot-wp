@@ -35,7 +35,7 @@ function lorybot_activate() {
 
     // Send POST request and handle the response
     $response = wp_remote_post(get_option('lorybot_server_url') . "activate", $args);
-    lorybot_handleResponse($response);
+    lorybot_handleActivationResponse($response);
 
     // Ensure 'lorybot_do_activation_redirect' option is set
     add_option('lorybot_do_activation_redirect', true);
@@ -49,7 +49,7 @@ function lorybot_activate() {
  *
  * @param WP_Error|array $response The response or WP_Error on failure.
  */
-function lorybot_handleResponse($response) {
+function lorybot_handleActivationResponse($response) {
     if (is_wp_error($response)) {
         // Log error message
         $error_message = $response->get_error_message();

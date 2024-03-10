@@ -33,7 +33,7 @@ function lorybot_deactivate() {
 
     // Send POST request and handle the response
     $response = wp_remote_post($lorybot_server_url . "deactivate", $args);
-    lorybot_handleResponse($response);
+    lorybot_handleDeactivationResponse($response);
 }
 
 /**
@@ -41,7 +41,7 @@ function lorybot_deactivate() {
  *
  * @param WP_Error|array $response The response or WP_Error on failure.
  */
-function lorybot_handleResponse($response) {
+function lorybot_handleDeactivationResponse($response) {
     if (is_wp_error($response)) {
         // Safely escape and output the error message
         echo "Something went wrong: " . esc_html($response->get_error_message());

@@ -2,7 +2,7 @@
 Contributors: LoryBot
 Tags: AI Chatbot, Chatbot plugin, Customer support chat, Artificial Intelligence Chat, WP ChatBot
 Tested up to: 6.4.2
-Stable tag: 1.0
+Stable tag: 1.2
 Requires PHP: 5.3
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -72,4 +72,10 @@ LoryBot engages visitors 24/7 with instant, intelligent responses, enhancing use
 Yes, LoryBot offers analytics features that allow you to analyze chat interactions. This data helps you gain insights into user preferences and behaviors, enabling you to continuously improve engagement strategies and chatbot performance.
 
 
- == Changelog ==
+
+== Changelog ==
+= 1.2 - 03.10.2024 -
+- Fixed: Vulnerability fix
+- Fixed: some bug with sending multiple messages
+- Fixed: some bug with rendering messages from the server
+- Other bug fixes and Improvements
