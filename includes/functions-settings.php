@@ -1,5 +1,7 @@
 <?php
 
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly 
+
 include_once 'settings/callbacks.php';
 include_once 'settings/sanitaze.php';
 
@@ -67,8 +69,8 @@ function lorybot_function_after_update($updated_values) {
         return false;
     }
 
-    $json = build_update_json($updated_values, $custom_id);
-    return send_update_request($json);
+    $json = lorybot_build_update_json($updated_values, $custom_id);
+    return lorybot_send_update_request($json);
 }
 
 /**
@@ -78,7 +80,7 @@ function lorybot_function_after_update($updated_values) {
  * @param string $custom_id The custom ID.
  * @return array The JSON payload.
  */
-function build_update_json($values, $custom_id) {
+function lorybot_build_update_json($values, $custom_id) {
     return [
         'embedding' => $values['embedding'] ?? '',
         'prompt' => $values['prompt'] ?? '',
@@ -92,7 +94,7 @@ function build_update_json($values, $custom_id) {
  * @param array $json The JSON payload for the update.
  * @return bool True if the request was successful, false otherwise.
  */
-function send_update_request($json) {
+function lorybot_send_update_request($json) {
     $lorybot_server_url = get_option('lorybot_server_url');
     $response = wp_remote_post($lorybot_server_url . "settings", [
         'method'    => 'POST',
@@ -100,7 +102,7 @@ function send_update_request($json) {
             'Content-Type' => 'application/json',
             'LORYBOT-API-KEY' => $json['custom_id'],
         ],
-        'body'      => json_encode($json),
+        'body'      => wp_json_encode($json),
         'sslverify' => false,
         'timeout'   => 60
     ]);

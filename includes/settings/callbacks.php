@@ -11,25 +11,25 @@ function lorybot_section_callback() {
     echo '<p class="setting-p">You can tailor the behavior of the LoryBot AI engine and the style of the chatbot to suit your preferences here.</p>';
 }
 
+
 /**
  * Retrieves a specific LoryBot option with an optional default value.
  *
  * @param string $option_name The name of the option to retrieve.
- * @param string $default The default value to return if the option is not set.
+ * @param mixed $default The default value to return if the option is not set.
  * @return mixed The value of the option or the default value.
  */
-function get_lorybot_option($option_name, $default = '') {
+function lorybot_get_option($option_name, $default = '') {
     $options = get_option('lorybot_options');
     return $options[$option_name] ?? $default;
 }
-
 
 
 /**
  * Callback for displaying the chat enabled checkbox.
  */
 function lorybot_enable_callback() {
-    $chat_enabled = get_lorybot_option('chat_enabled');
+    $chat_enabled = lorybot_get_option('chat_enabled');
     ?>
     <label class="custom-checkbox">
         <input type="checkbox" name="lorybot_options[chat_enabled]" id="lorybot_enabled_field" <?php checked($chat_enabled, 'on'); ?>>
@@ -43,7 +43,7 @@ function lorybot_enable_callback() {
  * Callback for displaying the custom ID text field.
  */
 function lorybot_custom_id_callback() {
-    $custom_id = get_lorybot_option('custom_id');
+    $custom_id = lorybot_get_option('custom_id');
     ?>
     <div class="lorybot-field-wrap">
         <input value="<?php echo esc_attr($custom_id); ?>" type="text" name="lorybot_options[custom_id]" id="lorybot_custom_id_field" class="lorybot-input">
@@ -58,7 +58,7 @@ function lorybot_custom_id_callback() {
  * Callback for displaying the prompt textarea.
  */
 function lorybot_prompt_callback() {
-    $prompt = get_lorybot_option('prompt');
+    $prompt = lorybot_get_option('prompt');
     ?>
     <div class="lorybot-field-wrap">
         <textarea id="lorybot_prompt_field" name="lorybot_options[prompt]" class="lorybot-textarea"><?php echo esc_textarea($prompt); ?></textarea>
@@ -89,7 +89,7 @@ function lorybot_prompt_callback() {
  * Callback for displaying the Information Source textarea.
  */
 function lorybot_embedding_callback() {
-    $embedding = get_lorybot_option('embedding');
+    $embedding = lorybot_get_option('embedding');
     ?>
     <div class="lorybot-field-wrap">
     <textarea id="embedding_editor_id" name="lorybot_options[embedding]" class="lorybot-textarea"><?php echo esc_textarea($embedding); ?></textarea>
@@ -114,30 +114,34 @@ function lorybot_embedding_callback() {
 
 /**
  * Callback for displaying the chat display textarea.
- * It loads the default HTML from a file if the setting is not set.
+ * It uses WP_Filesystem methods to securely load the default HTML from a local file if the setting is not set.
  */
 function lorybot_chat_display_callback() {
+    require_once(ABSPATH . 'wp-admin/includes/file.php'); // Include the file.php for WP_Filesystem
+
+    WP_Filesystem(); // Initialize the WP filesystem, no more using 'file-put-contents' directly
+
+    global $wp_filesystem; // Global filesystem variable
+
     $chat_html_path = plugin_dir_path(__FILE__) . 'chat-html.php';
-    $chat_display = get_lorybot_option('chat_display', file_get_contents($chat_html_path));
+
+    if ($wp_filesystem->exists($chat_html_path)) {
+        $chat_display = $wp_filesystem->get_contents($chat_html_path); // Use WP_Filesystem method
+    } else {
+        $chat_display = 'Error loading default chat HTML. Please check the file path and permissions.';
+    }
+
+    // Use lorybot_get_option() to possibly override the file content with a stored option
+    $chat_display = lorybot_get_option('chat_display', $chat_display);
 
     ?>
     <div class="lorybot-field-wrap">
         <textarea id="lorybot_chat_display_field" name="lorybot_options[chat_display]" class="lorybot-textarea chat-display"><?php echo esc_textarea($chat_display); ?></textarea>
-        <span class="help-tip-text">
-            Use this section to customize the HTML that renders your chat interface on the website. 
-            <br /><br />
-            <strong>Guidelines:</strong>
-            <ol>
-                <li><strong>HTML Structure:</strong> Ensure the HTML is valid and well-formatted. This is crucial for the chat interface to function correctly.</li>
-                <li><strong>Styling:</strong> You can include CSS styles directly in the HTML or link to external stylesheets to enhance the appearance of the chat interface.</li>
-                <li><strong>Customizing the Header:</strong> Replace <code>&lt;h2&gt;Chatbot&lt;/h2&gt;</code> with your desired chatbot name.</li>
-                <li><strong>Customizing the Welcome Message:</strong> Edit the content within <code>&lt;p&gt;Hi there 👋&lt;br&gt;How can I help you today?&lt;/p&gt;</code> to change the initial message displayed when the chatbot loads.</li>
-            </ol>
-            <strong>Note:</strong> Be cautious when editing HTML directly. Incorrect code can impact the functionality and display of the chat interface.
-        </span>
+        <span class="help-tip-text">...</span>
     </div>
     <?php
 }
+
 
 
 /**
@@ -164,12 +168,12 @@ function lorybot_color_picker_script() {
  * @param string $default_color The default color value to use if the option is not set.
  */
 function lorybot_color_picker_callback($option_name, $default_color) {
-    $color_value = get_lorybot_option($option_name);
+    $color_value = lorybot_get_option($option_name);
     if (empty($color_value)) {
         $color_value = $default_color;
     }
     ?>
-    <input class="lorybot-color-picker" type="text" name="lorybot_options[<?php echo $option_name; ?>]" value="<?php echo esc_attr($color_value); ?>">
+    <input class="lorybot-color-picker" type="text" name="lorybot_options[<?php echo esc_attr($option_name); ?>]" value="<?php echo esc_attr($color_value); ?>">
     <?php
     lorybot_color_picker_script();
 }

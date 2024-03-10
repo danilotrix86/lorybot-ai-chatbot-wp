@@ -1,19 +1,37 @@
 <?php
+
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly 
+
 // Start output buffering
 ob_start();
+
+
+/**
+ * Validates a domain name.
+ *
+ * @param string $domain The domain name to validate.
+ * @return bool True if valid, false otherwise.
+ */
+function lorybot_isValidDomain($domain) {
+    return (filter_var($domain, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME) !== false);
+}
 
 /**
  * Retrieves the main domain from the HTTP_HOST server variable.
  *
- * @return string|null The main domain or null if HTTP_HOST is not set.
+ * @return string|null The main domain or null if HTTP_HOST is not set or invalid.
  */
-function getMainDomain() {
+function lorybot_get_main_domain() {
     if (isset($_SERVER['HTTP_HOST'])) {
-        $hostParts = explode('.', $_SERVER['HTTP_HOST']);
-        // Return the domain by joining the last two parts of the host
-        return count($hostParts) > 1 ? implode('.', array_slice($hostParts, -2)) : $_SERVER['HTTP_HOST'];
+        $host = sanitize_text_field(wp_unslash($_SERVER['HTTP_HOST']));
+
+        if (!lorybot_isValidDomain($host)) {
+            return null;
+        }
+
+        $hostParts = explode('.', $host);
+        return count($hostParts) > 1 ? implode('.', array_slice($hostParts, -2)) : $host;
     } else {
-        error_log("HTTP_HOST is not set");
         return null;
     }
 }
@@ -35,14 +53,14 @@ add_action('admin_init', 'lorybot_redirect');
  *
  * @return string The generated UUID.
  */
-function generate_uuid() {
+function lorybot_generate_uuid() {
     return sprintf(
         '%04x%04x-%04x-%04x-%04x-%04x%04x%04x',
-        mt_rand(0, 0xffff), mt_rand(0, 0xffff),
-        mt_rand(0, 0xffff),
-        mt_rand(0, 0x0fff) | 0x4000, // Set the version to 4 (randomly generated UUID)
-        mt_rand(0, 0x3fff) | 0x8000, // Set the variant to DCE 1.1, ISO/IEC 11578:1996
-        mt_rand(0, 0xffff), mt_rand(0, 0xffff), mt_rand(0, 0xffff)
+        wp_rand(0, 0xffff), wp_rand(0, 0xffff),
+        wp_rand(0, 0xffff),
+        wp_rand(0, 0x0fff) | 0x4000, // Set the version to 4 (randomly generated UUID)
+        wp_rand(0, 0x3fff) | 0x8000, // Set the variant to DCE 1.1, ISO/IEC 11578:1996
+        wp_rand(0, 0xffff), wp_rand(0, 0xffff), wp_rand(0, 0xffff)
     );
 }
 

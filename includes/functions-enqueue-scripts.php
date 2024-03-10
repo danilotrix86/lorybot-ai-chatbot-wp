@@ -1,4 +1,7 @@
 <?php
+
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly 
+
 /**
  * This script handles the enqueueing of styles and scripts for the LoryBot plugin.
  * It includes the main styles and scripts for the plugin's front-end.
@@ -16,7 +19,7 @@ function lorybot_enqueue_frontend_scripts() {
     wp_enqueue_style('material-symbols-rounded', 'https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@48,400,1,0');
 
     // Enqueue the chatbot's main JavaScript, making sure jQuery is loaded as a dependency
-    wp_enqueue_script('lorybot-script', plugin_dir_url(__FILE__) . '../assets/js/script.js', ['jquery'], '1.0', true);
+    wp_enqueue_script('lorybot-script', plugin_dir_url(__FILE__) . '../assets/js/script.js', ['jquery'], '1.1', true);
 
     // Localize the script with data from PHP
     lorybot_localize_frontend_script();
@@ -37,7 +40,7 @@ function lorybot_localize_frontend_script() {
         'ajax_url' => admin_url('admin-ajax.php'),
         'plugin_url' => plugin_dir_url(dirname(__FILE__)),
         'prompt' => $lorybot_options['prompt'] ?? '',
-        'client_id' => getMainDomain(),
+        'client_id' => lorybot_get_main_domain(),
         'main_color' => $main_color,
         'background_color' => $background_color,
         'title_color' => $title_color,

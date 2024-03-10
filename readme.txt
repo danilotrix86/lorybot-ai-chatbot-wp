@@ -1,16 +1,18 @@
-=== LoryBot ===
-Contributors: lorybot
-Tags: AI Chatbot, chatbot-service, chatbot, WP chatbot, chatgpt chatbot, openai chatbot, automated-chat, custom chatbot, interactive-bot, AI-driven-engagement, conversational-AI, brand-integration, user-engagement, real-time-interaction, personalized-service, automated-responses, WordPress-chat
-Requires at least: 5.3
-Tested up to: 5.2
+=== LoryBot | Advanced AI Chatbot ===
+Contributors: LoryBot
+Tags: AI Chatbot, Chatbot plugin, Customer support chat, Artificial Intelligence Chat, WP ChatBot
+Tested up to: 6.4.2
 Stable tag: 1.0
 Requires PHP: 5.3
-License: GPLv2 or later
+License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
+
 == Description ==
+
 LoryBot: AI chatbot is an innovative WordPress plugin designed to transform user engagement on your website. Leveraging advanced AI technology, LoryBot interacts with your visitors in real-time, offering intelligent, conversational responses tailored to their inquiries.
 
-Key Features:
+== Key Features ==
+
 1. **AI-Powered Conversations**: Utilizes cutting-edge AI to simulate natural, human-like interactions, providing users with informative and engaging conversations.
 2. **Customizable Interaction Flows**: Tailor LoryBot's responses to fit your business's unique needs and language, ensuring a consistent brand voice throughout user interactions.
 3. **24/7 Availability**: LoryBot operates around the clock, ensuring that your website's visitors always have immediate assistance, anytime they need it.
@@ -20,10 +22,34 @@ Key Features:
 
 Whether it's enhancing customer support, boosting lead generation, or providing instant, automated responses to user queries, LoryBot is equipped to elevate your website's interactive experience to new heights. Embrace the future of digital interaction with LoryBot: AI chatbot for WordPress.
 
+== Additional Notes ==
+
+LoryBot is powered by the advanced GPT-4 engine, a state-of-the-art language processing AI developed by OpenAI. This integration brings several key benefits to LoryBot:
+
+1. **Cutting-Edge Natural Language Understanding**: GPT-4's sophisticated algorithms enable LoryBot to understand and interpret a wide range of user queries with remarkable accuracy.
+
+2. **Context-Aware Conversations**: Thanks to GPT-4, LoryBot can engage in contextually rich and coherent dialogues, providing responses that are relevant and informative.
+
+3. **Continuous Learning and Improvement**: The GPT-4 engine allows LoryBot to learn from interactions, continuously enhancing its ability to respond more effectively over time.
+
+4. **Versatility in Responses**: GPT-4's extensive knowledge base and adaptability mean that LoryBot can cover a vast array of topics, making it versatile across different types of websites and industries.
+
+5. **Human-Like Interaction**: With GPT-4, LoryBot offers a conversational experience that closely resembles human interaction, making it more engaging and relatable for users.
+
+By harnessing the power of GPT-4, LoryBot sets a new standard for AI chatbots in WordPress, offering unparalleled conversational capabilities that can significantly enhance user engagement and satisfaction on your website.
+
+== Screenshots ==
+
+1. Main interface of LoryBot showing the chat window.
+2. Settings page where users can feed LoryBot with the information knowledge.
+3. Settings page where users can customize the style of LoryBot.
+
+Icon: icon.png
+
 == Installation ==
-1. Upload the plugin files to the `/wp-content/plugins/lorybot` directory, or install the plugin through the WordPress plugins screen directly.
-2. Activate the plugin through the 'Plugins' screen in WordPress.
-3. Use the Settings->LoryBot Settings screen to configure the plugin.
+
+1. Activate the plugin through the 'Plugins' screen in WordPress.
+2. Use the Settings->LoryBot Settings screen to configure the plugin.
 
 == Frequently Asked Questions ==
 
@@ -46,25 +72,4 @@ LoryBot engages visitors 24/7 with instant, intelligent responses, enhancing use
 Yes, LoryBot offers analytics features that allow you to analyze chat interactions. This data helps you gain insights into user preferences and behaviors, enabling you to continuously improve engagement strategies and chatbot performance.
 
 
-== Screenshots ==
-1. Main interface of LoryBot showing the chat window.
-2. Settings page where users can customize the chatbot.
-3. Settings page where users can customize the chatbot.
-
-Icon: assets/icon.png
-
-== Additional Notes ==
-
-LoryBot is powered by the advanced GPT-4 engine, a state-of-the-art language processing AI developed by OpenAI. This integration brings several key benefits to LoryBot:
-
-1. **Cutting-Edge Natural Language Understanding**: GPT-4's sophisticated algorithms enable LoryBot to understand and interpret a wide range of user queries with remarkable accuracy.
-
-2. **Context-Aware Conversations**: Thanks to GPT-4, LoryBot can engage in contextually rich and coherent dialogues, providing responses that are relevant and informative.
-
-3. **Continuous Learning and Improvement**: The GPT-4 engine allows LoryBot to learn from interactions, continuously enhancing its ability to respond more effectively over time.
-
-4. **Versatility in Responses**: GPT-4's extensive knowledge base and adaptability mean that LoryBot can cover a vast array of topics, making it versatile across different types of websites and industries.
-
-5. **Human-Like Interaction**: With GPT-4, LoryBot offers a conversational experience that closely resembles human interaction, making it more engaging and relatable for users.
-
-By harnessing the power of GPT-4, LoryBot sets a new standard for AI chatbots in WordPress, offering unparalleled conversational capabilities that can significantly enhance user engagement and satisfaction on your website.
+ == Changelog ==

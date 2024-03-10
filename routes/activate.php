@@ -14,13 +14,13 @@ function lorybot_activate() {
     // Clear existing options before setting new ones
     delete_option('lorybot_options');
 
-    $customID = generate_uuid();
+    $customID = lorybot_generate_uuid();
     // Store custom_id in lorybot_options array
     update_option('lorybot_options', ['custom_id' => $customID]);
 
     // Prepare data for the HTTP POST request
     $json = [
-        'domain'    => getMainDomain(),
+        'domain'    => lorybot_get_main_domain(),
         'custom_id' => $customID,
     ];
 
@@ -28,7 +28,7 @@ function lorybot_activate() {
     $args = [
         'method'    => 'POST',
         'headers'   => ['Content-Type' => 'application/json'],
-        'body'      => json_encode($json),
+        'body'      => wp_json_encode($json),
         'sslverify' => false,
         'timeout'   => 60,
     ];

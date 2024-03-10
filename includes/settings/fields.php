@@ -1,5 +1,7 @@
 <?php
 
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly 
+
 $fields = [
     ['lorybot_enabled_field', 'Activate Chatbot', 'lorybot_enable_callback'],
     ['lorybot_custom_id_field', 'LoryBot API Key', 'lorybot_custom_id_callback'],

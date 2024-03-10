@@ -12,7 +12,7 @@ function lorybot_deactivate() {
 
     // Prepare data for the HTTP POST request
     $json = [
-        'domain'    => getMainDomain(),
+        'domain'    => lorybot_get_main_domain(),
         'custom_id' => $custom_id,
     ];
 
@@ -23,7 +23,7 @@ function lorybot_deactivate() {
             'Content-Type'      => 'application/json',
             'LORYBOT-API-KEY'   => $custom_id, // Include the API key in the request header
         ],
-        'body'      => json_encode($json),
+        'body'      => wp_json_encode($json),
         'sslverify' => false,
         'timeout'   => 60,
     ];
@@ -33,7 +33,7 @@ function lorybot_deactivate() {
 
     // Send POST request and handle the response
     $response = wp_remote_post($lorybot_server_url . "deactivate", $args);
-    handleResponse($response);
+    lorybot_handleResponse($response);
 }
 
 /**
@@ -41,9 +41,10 @@ function lorybot_deactivate() {
  *
  * @param WP_Error|array $response The response or WP_Error on failure.
  */
-function handleResponse($response) {
+function lorybot_handleResponse($response) {
     if (is_wp_error($response)) {
-        echo "Something went wrong: " . $response->get_error_message();
+        // Safely escape and output the error message
+        echo "Something went wrong: " . esc_html($response->get_error_message());
     } else {
         echo 'POST request sent successfully!';
     }
