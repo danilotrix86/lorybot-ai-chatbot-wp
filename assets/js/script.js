@@ -1,5 +1,24 @@
 document.addEventListener("DOMContentLoaded", function() {
 
+
+    function initializeChatbot() {
+        const rootStyle = document.documentElement.style;
+        rootStyle.setProperty('--main-color', chatbot_vars.main_color);
+        rootStyle.setProperty('--background-color', chatbot_vars.background_color);
+        rootStyle.setProperty('--title-color', chatbot_vars.title_color);
+    
+        const profileImageUrl = chatbot_vars.plugin_url + 'assets/images/chatbot-profile.svg'; // Construct full URL
+        const sendIconUrl = chatbot_vars.plugin_url + 'assets/images/send-message.svg'; // Construct full URL
+
+        const chatbotIconUrl1 = chatbot_vars.plugin_url + 'assets/images/lorybot-chat-white.svg'; // Construct full URL
+        const chatbotIconUrl2 = chatbot_vars.plugin_url + 'assets/images/lorybot-chat-black.svg'; // Construct full URL
+
+        rootStyle.setProperty('--lorybot-chat-white', `url('${chatbotIconUrl1}')`); // Set the full URL wrapped in url()
+        rootStyle.setProperty('--lorybot-chat-black', `url('${chatbotIconUrl2}')`); // Set the full URL wrapped in url()
+        rootStyle.setProperty('--send-icon-url', `url('${sendIconUrl}')`); // Set the full URL wrapped in url()
+        rootStyle.setProperty('--profile-image-url', `url('${profileImageUrl}')`); // Set the full URL wrapped in url()
+    }
+
     // Function to set the user_id cookie for 1 day
     function setUserIdCookie() {
         if (!document.cookie.split(';').some((item) => item.trim().startsWith('user_id='))) {
@@ -16,6 +35,7 @@ document.addEventListener("DOMContentLoaded", function() {
         let parts = value.split(`; ${name}=`);
         if (parts.length === 2) return parts.pop().split(';').shift();
     }
+
     // Function to generate a unique user ID (UUID)
     function generateUserId() {
         // Simple version of UUID generation logic
@@ -25,15 +45,20 @@ document.addEventListener("DOMContentLoaded", function() {
 
     // Set the user_id cookie if not already set
     setUserIdCookie();
+    initializeChatbot();
 
+    // Function to send a warmup request to the server
     function sendWarmupRequest() {
+        console.log('Sending warmup request...');
         const userId = getCookie('user_id');
+        console.log('User ID:', userId);
         if (userId) {
             const customId = chatbot_vars.custom_id; // Ensure chatbot_vars.custom_id is defined
             const serverURL = chatbot_vars.server_url; // Ensure serverURL is defined
             const url = serverURL + "warmup/";
             const data = { custom_id: customId };
-    
+            console.log('Warmup request data:', data);
+
             fetch(url, {
                 method: 'POST',
                 headers: {
@@ -51,193 +76,316 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
 
-    function initializeChatbot() {
-        const userId = getCookie('user_id');
-        if (userId) {
-            const rootStyle = document.documentElement.style;
-            rootStyle.setProperty('--main-color', chatbot_vars.main_color);
-            rootStyle.setProperty('--background-color', chatbot_vars.background_color);
-            rootStyle.setProperty('--title-color', chatbot_vars.title_color);
+    var chatLoadingStatus = false;
+    var isBold = false;
+    var isItalic = false;
+    var messageDiv;
+    var autoScroll = true;
 
-            const chatbotToggler = document.querySelector(".chatbot-toggler");
-            const closeBtn = document.querySelector(".close-btn");
-            const chatbox = document.querySelector(".chatbox");
-            const chatInput = document.querySelector(".chat-input textarea");
-            const sendChatBtn = document.querySelector(".chat-input span");
-            const inputInitHeight = chatInput.scrollHeight;
+    const $testMessage = jQuery("#sseMessages");
+    const originalMessage = jQuery("#original_message");
+    var urls = {};
 
-            const createChatLi = (message, className, isBot = false) => {
-                const chatLi = document.createElement("li");
-                chatLi.className = `chat ${className}`;
-                chatLi.innerHTML = isBot ? `<span class="material-symbols-outlined">smart_toy</span><p>${message}</p>` : `<p>${message}</p>`;
-                return chatLi;
-            };
+    jQuery(".chatbot-toggler").on("touchstart click", () => {
+        sendWarmupRequest();
+        jQuery("#chatbot-container").toggleClass("active");
+    });
 
-            const appendMessageToChatbox = (message, className, isBot = false) => {
-                let chatLi;
-                let messageP;
-            
-                // Check if the last message in the chatbox is from the server
-                if (isBot && chatbox.lastChild && chatbox.lastChild.classList.contains('incoming')) {
-                    chatLi = chatbox.lastChild;
-                    messageP = chatLi.querySelector("p");
-                    
-                    // Check if the current content is "Thinking..." and replace it, otherwise append
-                    if (messageP.innerHTML === "Thinking...") {
-                        messageP.innerHTML = message;
-                    } else {
-                        messageP.innerHTML += message;
-                    }
-                } else {
-                    chatLi = createChatLi(message, className, isBot);
-                    chatbox.appendChild(chatLi);
-                }
-            
-                chatbox.scrollTo(0, chatbox.scrollHeight);
-            };
+    jQuery(".chatbot-close-btn").on("touchstart click", () => {
+        jQuery("#chatbot-container").removeClass("active");
+    });
+  
+  
+    document.getElementById("chatbot-message-form").addEventListener("submit", function (e) {
+        e.preventDefault();
+        const userMessage = document.getElementById("message").value;
+        if (!chatLoadingStatus && userMessage) {
+            const userId = "testwebsite"; // Assuming these values are given or otherwise obtained
+            var newChat =
+            '<div class="user-message"> <ul><li> <span>' +
+            userMessage +
+            ' </span> </li></ul> <div class="profile"><img width="20" src="${chatbot_vars.plugin_url}assets/images/user-profile.svg" alt="" /></div></div> ';
+            jQuery(".chatbot-chat-screen .messages").append(newChat);
+            autoScroll = true;
+            generateResponse(userMessage, userId);
+            document.getElementById("message").value = ""; // Clear textarea after sending
+            scrollChatBox();
+        }
+    });
+    
+    custom_id = chatbot_vars.custom_id;
+    server_url = chatbot_vars.server_url;
+   
+    function generateResponse(userMessage, userId) {
+        const customId = chatbot_vars.custom_id;
+        const encodedMessage = encodeURIComponent(userMessage);
+        const serverURL = chatbot_vars.server_url;
+        const apiKey = "d56745ef-db2d-40e4-a891-1025eb7807c9"; // Assuming the API key is necessary
+        // Construct the URL with query parameters, including the API key as necessary
+        const url = `${serverURL}chat?custom_id=${customId}&message=${encodedMessage}&user_id=${userId}&apiKey=${apiKey}`;
 
-            
-            const handleErrorResponse = (chatElement) => {
-                if (chatElement) {
-                    const messageElement = chatElement.querySelector(".error-message"); // Ensure this selector matches an element in your chatbox
-                    if (messageElement) {
-                        messageElement.classList.add("error");
-                        messageElement.innerHTML = "Oooops! Something went wrong. Please try again.";
-                    }
-                }
-            };
+        // Create and open a new EventSource connection
+        const eventSource = new EventSource(url);
 
+        var newChat =
+        '<div class="chatbot-message"> <div class="profile"><img width="20" src="${chatbot_vars.plugin_url}assets/images/chatbot-profile.svg" alt="" /></div><ul><li><span><div class="chatbot-loader"><div></div></div></span></li></ul> </div> ';
+        jQuery(".chatbot-chat-screen .messages").append(newChat);
+        chatLoadingStatus = true;
+        urls = {};
+        $testMessage.html("");
 
-           
+        eventSource.onmessage = function (event) {
+            try {
+            // Attempt to parse the event data as JSON
+            const data = JSON.parse(event.data);
 
-
-            const generateResponse = (userMessage, userId) => {
-                const customId = chatbot_vars.custom_id;
-                const encodedMessage = encodeURIComponent(userMessage);
-                const serverURL = chatbot_vars.server_url;
-                const url = `${serverURL}chat?custom_id=${customId}&message=${encodedMessage}&user_id=${userId}`;
-            
-                const eventSource = new EventSource(url);
-                
-                eventSource.onmessage = function(event) {
-                    const htmlContent = processChunk(event.data);
-                    appendMessageToChatbox(htmlContent, "incoming", true);
-                    htmlBuffer = ''; // Clear the buffer after appending to the chatbox
-                };
-                
-            
-                eventSource.onerror = function(error) {
-                    eventSource.close();
-                    handleErrorResponse(chatbox);
-                };
-            };
-            
-            
-            let htmlBuffer = '';
-            let markdownBuffer = '';
-            let isBold = false;
-            let isLinkText = false;
-            let isLinkUrl = false;
-            let linkText = '';
-            let linkUrl = '';
-
-            function processChunk(chunk) {
-                for (let i = 0; i < chunk.length; i++) {
-                    const char = chunk[i];
-                    markdownBuffer += char;
-
-                    // Check for bold markdown syntax '**'
-                    if (markdownBuffer.endsWith('**')) {
-                        if (isBold) {
-                            // Closing bold tag
-                            htmlBuffer += '<strong>' + markdownBuffer.slice(0, -2) + '</strong>';
-                            markdownBuffer = '';
-                            isBold = false;
-                        } else {
-                            // Opening bold tag
-                            htmlBuffer += markdownBuffer.slice(0, -2);
-                            markdownBuffer = '';
-                            isBold = true;
-                        }
-                    }
-
-                    // Handle start of link text
-                    if (char === '[') {
-                        isLinkText = true;
-                        markdownBuffer = '';
-                    }
-
-                    // Handle end of link text and start of URL
-                    if (markdownBuffer.endsWith('](')) {
-                        isLinkText = false;
-                        isLinkUrl = true;
-                        linkText = markdownBuffer.slice(0, -2);
-                        markdownBuffer = '';
-                    }
-
-                    // Handle end of URL
-                    if (char === ')' && isLinkUrl) {
-                        isLinkUrl = false;
-                        linkUrl = markdownBuffer.slice(0, -1);
-                        // Add 'http://' if no protocol specified
-                        if (!linkUrl.match(/^https?:\/\//)) {
-                            linkUrl = 'http://' + linkUrl;
-                        }
-                        htmlBuffer += ` <a href="${linkUrl}">${linkText}</a>`;
-                        markdownBuffer = '';
-                        linkText = '';
-                        linkUrl = '';
-                    }
-                }
-
-                if (!isBold && !isLinkText && !isLinkUrl) {
-                    htmlBuffer += markdownBuffer;
-                    markdownBuffer = '';
-                }
-
-                return htmlBuffer;
+            // If parsing is successful, handle the JSON data (assuming 'message' field exists)
+            processMessage(event, "incoming", true);
+            } catch (error) {
+            // If the data isn't valid JSON, assume it's plain text and handle directly
+            processMessage(event, "incoming", true);
             }
-           
-            const handleChat = () => {
-                const userMessage = chatInput.value.trim();
-                if (!userMessage) return;
-                const userId = getCookie('user_id');
-                chatInput.value = "";
-                chatInput.style.height = `${inputInitHeight}px`;
-            
-                appendMessageToChatbox(userMessage, "outgoing");
-            
-                setTimeout(() => appendMessageToChatbox("Thinking...", "incoming", true), 600);
-                setTimeout(() => generateResponse(userMessage, userId), 1200); // Corrected this line
-            };
+        // Consideration for closing the eventSource should be here, based on the data or a specific condition
+        };
 
-            const adjustTextareaHeight = () => {
-                chatInput.style.height = `${inputInitHeight}px`;
-                chatInput.style.height = `${chatInput.scrollHeight}px`;
-            };
+        eventSource.onerror = function (error) {
+            // Handle any errors
+            printOutputReal();
+            printOutputReal();
+            printOutputReal();
+            chatLoadingStatus = false;
+            // console.error("SSE error:", error);
+            eventSource.close();
+        };
+    }
+  
+    function processMessage(event, type, shouldScroll) {
+        var message = event.data;
+        originalMessage.append(message);
 
-            chatInput.addEventListener("input", adjustTextareaHeight);
+        message = message.replace(/</g, "&lt;"); // replace < sign with lt because it fades away in DOM
+        message = message.replace(/&lt;br\s*\/?>/gi, " nEwBoX "); // check for <br> and replace with newbox
+        messageDiv = $(".chatbot-chat-screen .messages .chatbot-message")
+        .last()
+        .find("ul li")
+        .last()
+        .find("span")
+        .last();
 
-            chatInput.addEventListener("keydown", (e) => {
-                if (e.key === "Enter" && !e.shiftKey) {
-                    e.preventDefault();
-                    handleChat();
-                } else if (e.key === "Enter" && e.shiftKey) {
-                    // Allow Shift+Enter to insert a newline in the textarea
-                }
-            });
+        $testMessage.append(message); // first message comes here
+        $testMessage.html(
+            $testMessage
+            .html()
+            .replace(/(?<!nEwBoX\s*)\bnEwBoX\b(?!.*\bnEwBoX\b)/g, "NeWlInE")
+        ); // check for single appearance of <br> and replace it with newline
+        checkForURLs();
 
-            sendChatBtn.addEventListener("click", handleChat);
-            closeBtn.addEventListener("click", () => document.body.classList.remove("show-chatbot"));
-            
-            chatbotToggler.addEventListener("click", () => {
-                console.log("Toggler clicked"); // For debugging
-                document.body.classList.toggle("show-chatbot");
-                sendWarmupRequest();
-            });        } else {
-            setTimeout(initializeChatbot, 100); // Retry after 100 milliseconds
+        if (($testMessage.text().match(/ /g) || [].length).length > 3) {
+            printOutputReal(); // message gets printed on actual place
         }
     }
+  
+    function checkForURLs() {
+        // find urls in test message and mark there starting and ending locations
+        const text = $testMessage.text();
+        const regex =
+        /(https?:\/\/(?!.*eNdOfUrLeNdOfUrL)\S+)|(www\.(?!.*eNdOfUrLeNdOfUrL)\S+)/gi;
 
-    initializeChatbot();
+        let match;
+        while ((match = regex.exec(text))) {
+            const url = match[0];
+            if (!(url in urls) && isValidURL(url)) {
+                urls[url] = true;
+                insertLineBreakAroundURL(url);
+            }
+        }
+    }
+  
+    // print message in actual position
+    function printOutputReal() {
+        jQuery(".chatbot-chat-screen .messages .chatbot-message .chatbot-loader").remove(); // remove loader
+
+        var sourceText = $testMessage.text();
+        var index = sourceText.indexOf(" ");
+
+        // these two if replaces word with sourcetext if there is only one word left in test message
+        if (index == 0) {
+            var index = sourceText.indexOf(" ", 1);
+        }
+        var word = sourceText.slice(0, index);
+
+        if (index <= 0) {
+            var word = sourceText;
+        }
+
+        // print url based on marekd positions
+        if (word.includes("sTaRtOfUrL") && word.includes("eNdOfUrL")) {
+            // restyle the url now
+            var startIndex = word.indexOf("sTaRtOfUrL") + "sTaRtOfUrL".length;
+            var endIndex = word.indexOf("eNdOfUrL");
+            word = word.slice(startIndex, endIndex);
+
+            var punctuation = [".", ")", "]", "'", '"', "!"];
+
+            while (punctuation.includes(word.slice(-1))) {
+                word = word.slice(0, -1);
+            }
+
+            jQuery(".chatbot-chat-screen .messages .chatbot-message")
+            .last()
+            .find("ul")
+            .last()
+            .find("li")
+            .last()
+            .append("<a class='link'></a>");
+
+            messageDiv = $(".chatbot-chat-screen .messages .chatbot-message")
+            .last()
+            .find("ul li")
+            .last()
+            .find("a")
+            .last();
+
+            // if url has ](  in between then we split into two, frst half is the text and second half is actual link
+            if (word.includes("](")) {
+                var splitText = word.split("](");
+                var aa = splitText[0];
+                var bb = splitText[1];
+                messageDiv.append(aa);
+                messageDiv.attr("href", bb);
+            } else {
+                messageDiv.append(word);
+                messageDiv.attr("href", word);
+            }
+            jQuery(".chatbot-chat-screen .messages .chatbot-message")
+            .last()
+            .find("ul")
+            .last()
+            .find("li")
+            .last()
+            .append("<span></span>");
+
+            messageDiv = $(".chatbot-chat-screen .messages .chatbot-message")
+            .last()
+            .find("ul li")
+            .last()
+            .find("span")
+            .last();
+        } 
+        else {
+            // check for bold
+            if (word.includes("**") && !isBold) {
+                word = word.replace(/\*\*/, "");
+                isBold = true;
+            } else if (word.includes("**") && isBold) {
+                word = word.replace(/\*\*/g, "");
+                word = "<b class='bold'>" + word + "</b>";
+                isBold = false;
+            }
+            if (isBold) {
+                if (word.includes("**")) {
+                    word = word.replace(/\*\*/g, "");
+                    isBold = false;
+                }
+                word = "<b class='bold'>" + word + "</b>";
+            }
+
+            // check for italic
+            if (word.includes("*") && !isItalic) {
+                word = word.replace(/\*/, "");
+                isItalic = true;
+            } else if (word.includes("*") && isItalic) {
+                word = word.replace(/\*/g, "");
+                word = "<b class='italic'>" + word + "</b>";
+                isItalic = false;
+            }
+            if (isItalic) {
+                if (word.includes("*")) {
+                    word = word.replace(/\*/g, "");
+                    isItalic = false;
+                }
+                word = "<b class='italic'>" + word + "</b>";
+            }
+
+            // check for linebreaks for new box
+            if (word.includes("nEwBoX")) {
+                if (messageDiv.html()) {
+                    if (messageDiv.html().trim() !== "") {
+                        word = word + "<br />";
+                    }
+                }
+
+                word = word.replace(/nEwBoX/g, "");
+            }
+            
+            // check for linbreaks for single line
+            if (word.includes("NeWlInE")) {
+                if (messageDiv.html()) {
+                    if (messageDiv.html().trim() !== "") {
+                        word = word.replace(/NeWlInE/g, "<br />");
+                    } else {
+                        word = word.replace(/NeWlInE/g, "");
+                    }
+                }
+            }
+            messageDiv.append(word);
+        }
+
+        scrollChatBox();
+
+        if (index >= 0) {
+            $testMessage.html(sourceText.slice(index));
+        } else {
+            $testMessage.html("");
+        }
+    }
+  
+    function insertLineBreakAroundURL(url) {
+        var html = $testMessage.html();
+
+        var startIndex = html.indexOf(url);
+        var endIndex = html.indexOf(url) + url.length;
+        url = url.replace(/eNdOfUrL/g, "");
+
+        var newText =
+        html.slice(0, startIndex) +
+        "sTaRtOfUrL" +
+        url +
+        "eNdOfUrL" +
+        html.slice(endIndex);
+        newText = newText.replace(/(sTaRtOfUrL)+/g, "sTaRtOfUrL");
+        $testMessage.html(newText);
+    }
+  
+    function isValidURL(url) {
+        // Define valid characters for URL
+        const validCharacters = /^[a-zA-Z0-9\-._~:/?#\[\]@!$&'()*+,;=%]*$/;
+        // Check if the URL ends with a valid character
+        return validCharacters.test(url[url.length - 1]);
+    }
+  
+    // scroll to the bottom
+    function scrollChatBox() {
+        if (autoScroll) {
+            var content = $(".chatbot-chat-screen .messages");
+            content.scrollTop(content.prop("scrollHeight"));
+        }
+    }
+  
+    jQuery(".chatbot .chatbot-content .messages").on("wheel", function (event) {
+        handleScroll($(this));
+    });
+
+    jQuery(".chatbot .chatbot-content .messages").on("touchmove", function (event) {
+        handleScroll($(this));
+    });
+  
+    function handleScroll(element) {
+        if (element.scrollTop() < element.prop("scrollHeight") - element.height()) {
+            autoScroll = false;
+        }
+        if (element.scrollTop() > element.prop("scrollHeight") - element.height() - 50) {
+            autoScroll = true;
+        }
+    }
 });

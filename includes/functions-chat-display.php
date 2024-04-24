@@ -23,3 +23,18 @@ function lorybot_display() {
 }
 
 add_action('wp_footer', 'lorybot_display');
+
+function lorybot_custom_kses_allowed_html($tags) {
+  $tags['input'] = array(
+      'type' => true,
+      'id' => true,
+      'name' => true,
+      'value' => true,
+      'class' => true,
+      'style' => true
+  );
+
+  return $tags;
+}
+
+add_filter('wp_kses_allowed_html', 'lorybot_custom_kses_allowed_html');

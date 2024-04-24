@@ -11,15 +11,16 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
  * Enqueues styles and scripts for the LoryBot plugin's front-end.
  */
 function lorybot_enqueue_frontend_scripts() {
-    // Enqueue the chatbot's main stylesheet
-    wp_enqueue_style('lorybot-style', plugin_dir_url(__FILE__) . '../assets/css/style.css');
-
+    
     // Enqueue Google Material Symbols fonts
     wp_enqueue_style('material-symbols-outlined', 'https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@48,400,0,0');
     wp_enqueue_style('material-symbols-rounded', 'https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@48,400,1,0');
 
     // Enqueue the chatbot's main JavaScript, making sure jQuery is loaded as a dependency
-    wp_enqueue_script('lorybot-script', plugin_dir_url(__FILE__) . '../assets/js/script.js', ['jquery'], '1.1', true);
+    wp_enqueue_script('lorybot-script', plugin_dir_url(__FILE__) . '../assets/js/script.js', ['jquery'], '1.2', true);
+
+    // Enqueue the chatbot's main stylesheet
+    wp_enqueue_style('lorybot-style', plugin_dir_url(__FILE__) . '../assets/css/style.css');
 
     // Localize the script with data from PHP
     lorybot_localize_frontend_script();

@@ -1,20 +1,42 @@
 <button class="chatbot-toggler">
-    <span class="material-symbols-rounded">mode_comment</span>
-    <span class="material-symbols-outlined">close</span>
+    <div class="chatbot-icon-second"></div>
 </button>
-<div class="chatbot">
-    <header>
-        <h2>Chatbot</h2>
-        <span class="close-btn material-symbols-outlined">close</span>
-    </header>
-    <ul class="chatbox">
-        <li class="chat incoming">
-            <span class="material-symbols-outlined">smart_toy</span>
-            <p>Hi there 👋<br>How can I help you today?</p>
-        </li>
-    </ul>
-    <div class="chat-input">
-        <textarea placeholder="Enter a message..." spellcheck="false" required></textarea>
-        <span id="send-btn" class="material-symbols-rounded">send</span>
+
+<div class="chatbot" id="chatbot-container" style="transform: scale(0);">
+    <div id="sseMessages" style="display: none;"></div>
+    <div id="original_message" style="display: none;"></div>
+    <div class="chatbot-header">
+        <div class="profile">
+            <div class="img"></div>
+            <div class="text">
+                <h5>LoryBot</h5>
+                <p>Online</p>
+            </div>
+        </div>
+        <button class="chatbot-close-btn">
+            <span></span>
+        </button>
     </div>
-</div>
+
+    <div class="chatbot-content">
+        <div class="chatbot-chat-screen active">
+            <div class="messages">
+                <div class="chatbot-message">
+                    <div class="profile"></div>
+                    <ul>
+                    <li>
+                        <span> Hi, it's great to see you! 👋 </span>
+                    </li>
+                    </ul>
+                </div>
+            </div>
+            <div id="chatbot-message-form" class="chatbot-write-message">
+                <div class="textbox">
+                    <input id="message" type="text">
+                    <button class="send-voice-btn"></button>
+                </div>
+                <button type="submit" class="send-message-btn" id="chatbot-message-form"></button>
+            </div>
+        </div>
+    </div>
+</div>  

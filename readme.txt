@@ -58,7 +58,7 @@ By leveraging the groundbreaking GPT-4 technology, LoryBot sets a new benchmark 
 2. Settings page where users can feed LoryBot with the information knowledge.
 3. Settings page where users can customize the style of LoryBot.
 
-Icon: icon.png
+Icon: icon-256x256.png
 
 == Installation ==
 
