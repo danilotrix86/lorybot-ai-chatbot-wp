@@ -23,8 +23,9 @@ body {
     border: 0;
     cursor: pointer;
     transition: background-color 0.4s;
-    animation: scaleUp1 6s;
+    animation: scaleUp1 4s;
     animation-iteration-count: infinite;
+    z-index: 9999;
 }
 @keyframes scaleUp1 {
   0% {
@@ -72,6 +73,10 @@ body {
     }
 }
 
+.chatbot-sseMessages, .chatbot-original_message{
+    display: none;
+}
+
 
 #chatbot-container {
     position: fixed;
@@ -97,7 +102,7 @@ body {
     display: flex;
     flex-direction: column;
     padding: 6px;
-    z-index: 1111;
+    z-index: 11111;
 }
 .chatbot .chatbot-header {
     padding: 12px 24px;
@@ -280,7 +285,7 @@ body {
 .chatbot .chatbot-message .profile {
     background-color: var(--main-color);
     background-image: var(--profile-image-url); 
-    background-size: contain;         
+    background-size: 25px;         
     background-repeat: no-repeat;      
     background-position: center center; 
     width: 36px;
@@ -401,6 +406,11 @@ body {
 }
 .chatbot .user-message .profile {
     background-color: #f5f8ff;
+    background-image: var(--lorybot-user-profile); 
+    background-size: 25px;         
+    background-repeat: no-repeat;      
+    background-position: center center; 
+    width: 35px;
     width: 36px;
     height: 36px;
     border-radius: 50%;
@@ -509,7 +519,26 @@ body {
     outline: none;
     width: 100%;
     height: auto;
+    font-size: 14px;
+    font-weight: 400;
+    color: #000;
+    font-family: "Poppins", sans-serif;
+    font-style: normal;
+    margin: 0;
+    max-width: 100%;  /* Ensure the input does not overflow the screen width */
 }
+.chatbot-write-message .textbox input:focus{
+    font-size: 14px;
+    font-weight: 400;
+    color: #000;
+    font-family: "Poppins", sans-serif;
+    font-style: normal;
+    transform: scale(1);
+    margin-top: 0;
+    height: auto;
+}
+
+
 .chatbot-write-message .textbox .send-voice-btn {
     border: 0;
     background: transparent;

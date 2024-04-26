@@ -17,7 +17,7 @@ function lorybot_enqueue_frontend_scripts() {
     wp_enqueue_style('material-symbols-rounded', 'https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@48,400,1,0');
 
     // Enqueue the chatbot's main JavaScript, making sure jQuery is loaded as a dependency
-    wp_enqueue_script('lorybot-script', plugin_dir_url(__FILE__) . '../assets/js/script.js', ['jquery'], '1.2', true);
+    wp_enqueue_script('lorybot-script', plugin_dir_url(__FILE__) . '../assets/js/script.js', ['jquery'], '1.2.2', true);
 
     // Enqueue the chatbot's main stylesheet
     wp_enqueue_style('lorybot-style', plugin_dir_url(__FILE__) . '../assets/css/style.css');

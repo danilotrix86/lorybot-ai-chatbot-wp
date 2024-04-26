@@ -1,6 +1,12 @@
 document.addEventListener("DOMContentLoaded", function() {
 
 
+    
+    const metaViewport = document.querySelector('meta[name="viewport"]');
+    metaViewport.setAttribute('content', 'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no');
+    
+
+
     function initializeChatbot() {
         const rootStyle = document.documentElement.style;
         rootStyle.setProperty('--main-color', chatbot_vars.main_color);
@@ -8,11 +14,13 @@ document.addEventListener("DOMContentLoaded", function() {
         rootStyle.setProperty('--title-color', chatbot_vars.title_color);
     
         const profileImageUrl = chatbot_vars.plugin_url + 'assets/images/chatbot-profile.svg'; // Construct full URL
+        const userprofileImageUrl = chatbot_vars.plugin_url + 'assets/images/user-profile.svg'; // Construct full URL
         const sendIconUrl = chatbot_vars.plugin_url + 'assets/images/send-message.svg'; // Construct full URL
 
         const chatbotIconUrl1 = chatbot_vars.plugin_url + 'assets/images/lorybot-chat-white.svg'; // Construct full URL
         const chatbotIconUrl2 = chatbot_vars.plugin_url + 'assets/images/lorybot-chat-black.svg'; // Construct full URL
 
+        rootStyle.setProperty('--lorybot-user-profile', `url('${userprofileImageUrl}')`); // Set the full URL wrapped in url(
         rootStyle.setProperty('--lorybot-chat-white', `url('${chatbotIconUrl1}')`); // Set the full URL wrapped in url()
         rootStyle.setProperty('--lorybot-chat-black', `url('${chatbotIconUrl2}')`); // Set the full URL wrapped in url()
         rootStyle.setProperty('--send-icon-url', `url('${sendIconUrl}')`); // Set the full URL wrapped in url()
@@ -46,34 +54,41 @@ document.addEventListener("DOMContentLoaded", function() {
     // Set the user_id cookie if not already set
     setUserIdCookie();
     initializeChatbot();
+    
 
     // Function to send a warmup request to the server
     function sendWarmupRequest() {
-        console.log('Sending warmup request...');
         const userId = getCookie('user_id');
-        console.log('User ID:', userId);
         if (userId) {
             const customId = chatbot_vars.custom_id; // Ensure chatbot_vars.custom_id is defined
-            const serverURL = chatbot_vars.server_url; // Ensure serverURL is defined
-            const url = serverURL + "warmup/";
-            const data = { custom_id: customId };
-            console.log('Warmup request data:', data);
-
+            const serverURL = chatbot_vars.server_url; // Ensure serverURL is defined without a trailing slash if it causes redirect
+            const url = serverURL + "warmup"; // Removed the trailing slash here
+            const data = { custom_id: customId, user_id: userId }; // Added user_id if it's needed like in generateResponse
+    
             fetch(url, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'LORYBOT-API-KEY': customId // Adding custom_id to the request headers
+                    'LORYBOT-API-KEY': customId // Adjust according to your API's expected header for authentication
                 },
                 body: JSON.stringify(data),
             })
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
             .then(data => {
                 console.log('Warmup request successful:', data);
                 return data; // Make sure to return data or some response
+            })
+            .catch(error => {
+                console.error('Error during fetch:', error);
             });
         }
     }
+    
 
 
     var chatLoadingStatus = false;
@@ -96,22 +111,34 @@ document.addEventListener("DOMContentLoaded", function() {
     });
   
   
-    document.getElementById("chatbot-message-form").addEventListener("submit", function (e) {
+    document.getElementById("chatbot-message-form-button").addEventListener("click", function (e) {
         e.preventDefault();
+        sendMessage();
+    });
+
+    document.getElementById("message").addEventListener("keydown", function (e) {
+        if (e.key === "Enter") {
+            e.preventDefault();
+            sendMessage();
+        }
+    });
+
+    function sendMessage() {
         const userMessage = document.getElementById("message").value;
         if (!chatLoadingStatus && userMessage) {
-            const userId = "testwebsite"; // Assuming these values are given or otherwise obtained
+            const userId = getCookie('user_id');
             var newChat =
-            '<div class="user-message"> <ul><li> <span>' +
-            userMessage +
-            ' </span> </li></ul> <div class="profile"><img width="20" src="${chatbot_vars.plugin_url}assets/images/user-profile.svg" alt="" /></div></div> ';
+                '<div class="user-message"> <ul><li> <span>' +
+                userMessage +
+                ' </span> </li></ul> <div class="profile"></div> ';
             jQuery(".chatbot-chat-screen .messages").append(newChat);
             autoScroll = true;
             generateResponse(userMessage, userId);
             document.getElementById("message").value = ""; // Clear textarea after sending
             scrollChatBox();
         }
-    });
+    }
+        
     
     custom_id = chatbot_vars.custom_id;
     server_url = chatbot_vars.server_url;
@@ -120,15 +147,14 @@ document.addEventListener("DOMContentLoaded", function() {
         const customId = chatbot_vars.custom_id;
         const encodedMessage = encodeURIComponent(userMessage);
         const serverURL = chatbot_vars.server_url;
-        const apiKey = "d56745ef-db2d-40e4-a891-1025eb7807c9"; // Assuming the API key is necessary
         // Construct the URL with query parameters, including the API key as necessary
-        const url = `${serverURL}chat?custom_id=${customId}&message=${encodedMessage}&user_id=${userId}&apiKey=${apiKey}`;
+        const url = `${serverURL}chat?custom_id=${customId}&message=${encodedMessage}&user_id=${userId}`;
 
         // Create and open a new EventSource connection
         const eventSource = new EventSource(url);
 
         var newChat =
-        '<div class="chatbot-message"> <div class="profile"><img width="20" src="${chatbot_vars.plugin_url}assets/images/chatbot-profile.svg" alt="" /></div><ul><li><span><div class="chatbot-loader"><div></div></div></span></li></ul> </div> ';
+        '<div class="chatbot-message"> <div class="profile"></div><ul><li><span><div class="chatbot-loader"><div></div></div></span></li></ul> </div> ';
         jQuery(".chatbot-chat-screen .messages").append(newChat);
         chatLoadingStatus = true;
         urls = {};
@@ -165,7 +191,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
         message = message.replace(/</g, "&lt;"); // replace < sign with lt because it fades away in DOM
         message = message.replace(/&lt;br\s*\/?>/gi, " nEwBoX "); // check for <br> and replace with newbox
-        messageDiv = $(".chatbot-chat-screen .messages .chatbot-message")
+        messageDiv = jQuery(".chatbot-chat-screen .messages .chatbot-message")
         .last()
         .find("ul li")
         .last()
@@ -239,7 +265,7 @@ document.addEventListener("DOMContentLoaded", function() {
             .last()
             .append("<a class='link'></a>");
 
-            messageDiv = $(".chatbot-chat-screen .messages .chatbot-message")
+            messageDiv = jQuery(".chatbot-chat-screen .messages .chatbot-message")
             .last()
             .find("ul li")
             .last()
@@ -265,7 +291,7 @@ document.addEventListener("DOMContentLoaded", function() {
             .last()
             .append("<span></span>");
 
-            messageDiv = $(".chatbot-chat-screen .messages .chatbot-message")
+            messageDiv = jQuery(".chatbot-chat-screen .messages .chatbot-message")
             .last()
             .find("ul li")
             .last()
@@ -367,17 +393,17 @@ document.addEventListener("DOMContentLoaded", function() {
     // scroll to the bottom
     function scrollChatBox() {
         if (autoScroll) {
-            var content = $(".chatbot-chat-screen .messages");
+            var content = jQuery(".chatbot-chat-screen .messages");
             content.scrollTop(content.prop("scrollHeight"));
         }
     }
   
     jQuery(".chatbot .chatbot-content .messages").on("wheel", function (event) {
-        handleScroll($(this));
+        handleScroll(jQuery(this));
     });
 
     jQuery(".chatbot .chatbot-content .messages").on("touchmove", function (event) {
-        handleScroll($(this));
+        handleScroll(jQuery(this));
     });
   
     function handleScroll(element) {

@@ -3,8 +3,8 @@
 </button>
 
 <div class="chatbot" id="chatbot-container" style="transform: scale(0);">
-    <div id="sseMessages" style="display: none;"></div>
-    <div id="original_message" style="display: none;"></div>
+    <div id="sseMessages" class="chatbot-sseMessages"></div>
+    <div id="original_message" class="chatbot-original_message"></div>
     <div class="chatbot-header">
         <div class="profile">
             <div class="img"></div>
@@ -35,7 +35,7 @@
                     <input id="message" type="text">
                     <button class="send-voice-btn"></button>
                 </div>
-                <button type="submit" class="send-message-btn" id="chatbot-message-form"></button>
+                <button type="submit" class="send-message-btn" id="chatbot-message-form-button"></button>
             </div>
         </div>
     </div>
