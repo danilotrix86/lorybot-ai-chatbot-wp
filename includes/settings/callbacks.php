@@ -137,7 +137,7 @@ function lorybot_chat_display_callback() {
     ?>
     <div class="lorybot-field-wrap">
         <textarea id="lorybot_chat_display_field" name="lorybot_options[chat_display]" class="lorybot-textarea chat-display"><?php echo esc_textarea($chat_display); ?></textarea>
-        <span class="help-tip-text">...</span>
+        <span class="help-tip-text">The html of the chatbot. You can customize the messages to be displayed.</span>
     </div>
     <?php
 }

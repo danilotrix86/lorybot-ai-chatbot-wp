@@ -124,20 +124,42 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 
     function sendMessage() {
-        const userMessage = document.getElementById("message").value;
-        if (!chatLoadingStatus && userMessage) {
-            const userId = getCookie('user_id');
-            var newChat =
-                '<div class="user-message"> <ul><li> <span>' +
-                userMessage +
-                ' </span> </li></ul> <div class="profile"></div> ';
-            jQuery(".chatbot-chat-screen .messages").append(newChat);
-            autoScroll = true;
-            generateResponse(userMessage, userId);
-            document.getElementById("message").value = ""; // Clear textarea after sending
-            scrollChatBox();
-        }
+    // Get the message from the input element
+    const userMessage = document.getElementById("message").value;
+
+    // Check if the chat is not currently loading and the message is not empty
+    if (!chatLoadingStatus && userMessage) {
+        // Retrieve user ID from the cookie
+        const userId = getCookie('user_id');
+
+        // Construct the chat message HTML using template literals for better readability
+        const newChat = `
+            <div class="user-message">
+                <ul>
+                    <li>
+                        <span>${userMessage}</span>
+                    </li>
+                </ul>
+                <div class="profile"></div>
+            </div>`;
+
+        // Append the new chat message to the messages container
+        jQuery(".chatbot-chat-screen .messages").append(newChat);
+
+        // Trigger auto-scrolling
+        autoScroll = true;
+
+        // Generate a response based on the user's message and user ID
+        generateResponse(userMessage, userId);
+
+        // Clear the input element after sending the message
+        document.getElementById("message").value = "";
+
+        // Scroll the chat box to the latest message
+        scrollChatBox();
     }
+}
+
         
     
     custom_id = chatbot_vars.custom_id;

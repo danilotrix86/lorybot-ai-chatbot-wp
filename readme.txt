@@ -2,7 +2,7 @@
 Contributors: LoryBot
 Tags: AI Chatbot, Chatbot plugin, Customer support chat, Artificial Intelligence Chat, WP ChatBot, Conversational AI, Virtual assistant, Automated customer service, Chatbot analytics, Multilingual chatbot, AI-driven customer engagement, Natural Language Processing (NLP), Chatbot customization, Chatbot integration, AI customer support, AI-powered chat, Ecommerce chatbot, Chatbot for sales, Lead generation chatbot, Personalized chat experience, Chatbot templates, Rule-based chatbots, Chatbot builder, Chatbot for WordPress, AI chatbot for business, Chatbot user interface design, Chatbot performance metrics, AI chat support, Chatbot development tools, Chatbot conversation design
 Tested up to: 6.4.2
-Stable tag: 1.2
+Stable tag: 1.3
 Requires PHP: 5.3
 Requires at least: 4.9
 License: GPLv3
@@ -55,8 +55,10 @@ By leveraging the groundbreaking GPT-4 technology, LoryBot sets a new benchmark 
 == Screenshots ==
 
 1. Main interface of LoryBot showing the chat window.
-2. Settings page where users can feed LoryBot with the information knowledge.
-3. Settings page where users can customize the style of LoryBot.
+2. Main interface of LoryBot showing the chat window.
+3. Main interface of LoryBot showing the chat window.
+4. Settings page where users can feed LoryBot with the information knowledge.
+5. Settings page where users can customize the style of LoryBot.
 
 Icon: icon-256x256.png
 
@@ -89,8 +91,15 @@ Absolutely! 🔍 LoryBot offers robust analytics features that allow you to anal
 
 
 == Changelog ==
-= 1.2 - 03.10.2024 -
-- Fixed: Vulnerability fix
-- Fixed: some bug with sending multiple messages
-- Fixed: some bug with rendering messages from the server
-- Other bug fixes and Improvements
+
+= 1.3 - 28.04.2024 -
+- New: Complete redesign of the user interface for improved usability and aesthetics.
+- Improved: Enhanced script elements for faster and more reliable performance.
+- Improved: Optimized AI responses for increased accuracy and personalization in user interactions.
+- Other enhancements: General improvements to code efficiency and stability.
+
+= 1.2 - 10.03.2024 -
+- Fixed: Vulnerability fix.
+- Fixed: Issue with sending multiple messages in quick succession.
+- Fixed: Problem with rendering messages from the server correctly.
+- Other bug fixes and improvements.

@@ -25,7 +25,7 @@
                     <div class="profile"></div>
                     <ul>
                     <li>
-                        <span> Hi, it's great to see you! 👋 </span>
+                        <span> Hi, How can I help you today?? 👋 </span>
                     </li>
                     </ul>
                 </div>
