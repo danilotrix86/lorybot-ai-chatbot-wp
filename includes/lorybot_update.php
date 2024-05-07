@@ -3,7 +3,13 @@ defined('ABSPATH') or exit;
 
 function lorybot_update_settings() {
     $current_version = get_option('lorybot_version', '1.2'); // Default to version 1.0 if not set
-    $new_version = '1.2.1'; // The new version of your plugin
+    $new_version = '1.3.2'; // The new version of your plugin
+
+    // if current version is empty
+    if (empty($current_version)) {
+            update_option('lorybot_version', '1.2');
+            return;
+    }
 
     if (version_compare($current_version, $new_version, '<')) {
 
@@ -21,9 +27,6 @@ function lorybot_update_settings() {
 
         update_option('lorybot_options', $options);
         update_option('lorybot_version', $new_version); // Update the stored version to the new version
-
-        // Debugging output
-        error_log('Updated chat_display to: ' . $options['chat_display']);
 
     }
 }
