@@ -2,7 +2,7 @@
 Contributors: LoryBot
 Tags: AI Chatbot, Chatbot plugin, Customer support chat, Artificial Intelligence Chat, WP ChatBot, Conversational AI, Virtual assistant, Automated customer service, Chatbot analytics, Multilingual chatbot, AI-driven customer engagement, Natural Language Processing (NLP), Chatbot customization, Chatbot integration, AI customer support, AI-powered chat, Ecommerce chatbot, Chatbot for sales, Lead generation chatbot, Personalized chat experience, Chatbot templates, Rule-based chatbots, Chatbot builder, Chatbot for WordPress, AI chatbot for business, Chatbot user interface design, Chatbot performance metrics, AI chat support, Chatbot development tools, Chatbot conversation design
 Tested up to: 6.4.2
-Stable tag: 1.3.3
+Stable tag: 1.3.4
 Requires PHP: 5.3
 Requires at least: 4.9
 License: GPLv3
@@ -91,6 +91,9 @@ Absolutely! 🔍 LoryBot offers robust analytics features that allow you to anal
 
 
 == Changelog ==
+
+= 1.3.4 - 08.05.2024 -
+- Fix: CSS improvements
 
 = 1.3.3 - 07.05.2024 -
 - Fix: Big with Scrolling the chat
