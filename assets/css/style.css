@@ -24,6 +24,13 @@
     z-index: 9999;
     padding: 0;
 }
+
+@media (min-width: 2180px) {
+    .chatbot-toggler {
+        height: 50px !important;
+    }
+}
+
 @keyframes scaleUp1 {
   0% {
     transform: scale(1);
@@ -544,7 +551,7 @@
 .chatbot-write-message .textbox .send-voice-btn {
     border: 0;
     background: transparent;
-    display: flex;
+    display: none; /*DISPLAY: FLEX*/
     align-items: center;
     justify-content: center;
 }
